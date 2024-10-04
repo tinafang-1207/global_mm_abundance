@@ -39,8 +39,7 @@ data_abundance_clean <- data_orig %>%
 # clean species key time-series data
 
 species_key_clean <- species_key %>%
-  rename(stock = n,
-         us_region = `U.S. region`) %>%
+  rename(us_region = `U.S. region`) %>%
   select(-notes)
 
 # join the cleaned abundance and species key datasets
