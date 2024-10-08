@@ -12,7 +12,8 @@ plotdir <- "figures"
 data <- read.csv("data/clean_data/U.S_Abundance_Clean.csv")
 
 data_time_pinniped <- data %>%
-  filter(catg1 == "Pinnipeds")
+  filter(catg1 == "Pinnipeds") %>%
+  mutate(sub_area = ifelse(stock == "Harbor seal - Washington Inland", "Washington Inland", sub_area))
 
 data_time_cetacean <- data %>%
   mutate(catg1 = ifelse(common_name == "Mesoplodont beaked whale", "Cetaceans", catg1)) %>%
@@ -55,7 +56,7 @@ nes <- ggplot(data = data_time_pinniped %>% filter(common_name %in% c("Northern 
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Sub-area") +
-  base_theme
+  base_theme+guides(color = "none")
 
 nes
 
@@ -63,11 +64,11 @@ nes
 hms <- ggplot(data = data_time_pinniped %>% filter(common_name %in% c("Hawaiian monk seal")), aes(x = year, y = abundance, color = survey_method)) +
   geom_point(aes(shape = abundance_units), position = position_dodge(width = 1))+
   geom_pointrange(aes(ymin = abundance_low, ymax = abundance_hi, shape = abundance_units), position = position_dodge(width = 1), fatten = 1)+
-  facet_wrap(.~stock, scales = "free") +
+  facet_wrap(.~stock_id, scales = "free") +
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Abundance units") +
-  base_theme
+  base_theme + guides(shape = "none")
 
 hms
 
@@ -75,7 +76,7 @@ hms
 hs_ak <- ggplot(data = data_time_pinniped %>% filter(common_name == "Harbor seal"&us_region == "Alaska"), aes(x = year, y = abundance, color = survey_method)) +
   geom_point(aes(shape = abundance_units), position = position_dodge(width = 1))+
   geom_pointrange(aes(ymin = abundance_low, ymax = abundance_hi, shape = abundance_units), position = position_dodge(width = 1), fatten = 1)+
-  facet_wrap(.~stock, scales = "free", ncol = 3) +
+  facet_wrap(.~stock_id, scales = "free", ncol = 3) +
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Abundance units") +
@@ -85,49 +86,16 @@ hs_ak
 
 # Time-series figures below are problematic
 
-hs_ca <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - California"), aes(x = year, y = abundance, color = survey_method)) +
+hs_wc <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - California"|stock == "Harbor seal - Oregon/Washington Coastal"|stock == "Harbor seal - Washington Inland"), 
+                aes(x = year, y = abundance, color = survey_method)) +
   geom_point(aes(shape = sub_area))+
-  facet_wrap(.~stock, scales = "free", ncol = 3) +
-  scale_y_continuous(breaks=seq(0, 30000, 5000)) +
+  facet_wrap(.~stock, scales = "free", ncol = 2) +
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Sub-area") +
-  base_theme
+  base_theme + theme(legend.position = c(0.6, 0.3))
 
-hs_ca
- 
-hs_wa <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Oregon/Washington Coastal"&sub_area == "Washignton Coastal"), aes(x = year, y = abundance, color = survey_method)) +
-  geom_point()+
-  scale_y_continuous(breaks = seq(0, 14000, 2000))+
-  facet_wrap(.~stock, scales = "free")+
-  labs(x = "Year", y = "Abundance")+
-  scale_color_manual(name = "Survey method", values = survey_color)+
-  scale_shape_discrete(name = "Sub-area") +
-  base_theme
-
-hs_wa
-
-hs_or <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Oregon/Washington Coastal"&sub_area == "Oregon Coastal"), aes(x = year, y = abundance, color = survey_method)) +
-  geom_point()+
-  scale_y_continuous(breaks = seq(0, 6000, 2000)) +
-  facet_wrap(.~stock, scales = "free")+
-  labs(x = "Year", y = "Abundance")+
-  scale_color_manual(name = "Survey method", values = survey_color)+
-  scale_shape_discrete(name = "Sub-area") +
-  base_theme
-
-hs_or
-
-hs_wa_inland <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Washington Inland"), aes(x = year, y = abundance, color = survey_method)) +
-  geom_point()+
-  scale_y_continuous(breaks = seq(0, 16000, 4000)) +
-  facet_wrap(.~stock, scales = "free")+
-  labs(x = "Year", y = "Abundance")+
-  scale_color_manual(name = "Survey method", values = survey_color)+
-  base_theme
-
-hs_wa_inland
-
+hs_wc
 
 
 # Make figures for Otarrids (fur seal and sea lion)
@@ -209,33 +177,34 @@ survey_color <- c("Other model" = "#00798c", "Line-transect" = "#d1495b", "Count
 large_whale <- ggplot(data = data_time_cetacean %>% filter(catg2 == "Large whales"), aes(x = year, y = abundance, color = survey_method)) +
   geom_point(aes(shape = abundance_units), position = position_dodge(width = 1))+
   geom_pointrange(aes(ymin = abundance_low, ymax = abundance_hi, shape = abundance_units), position = position_dodge(width = 1), fatten = 1)+
-  facet_wrap(.~stock, scales = "free", ncol = 3) +
+  facet_wrap(.~stock_id, scales = "free", ncol = 3) +
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Abundance units") +
-  base_theme+theme(legend.position = "none")
+  base_theme
 
 large_whale
 
 small_whale <- ggplot(data = data_time_cetacean %>% filter(catg2 == "Small whales"), aes(x = year, y = abundance, color = survey_method)) +
   geom_point(aes(shape = abundance_units), position = position_dodge(width = 1))+
   geom_pointrange(aes(ymin = abundance_low, ymax = abundance_hi, shape = abundance_units), position = position_dodge(width = 1), fatten = 1)+
-  facet_wrap(.~stock, scales = "free", ncol = 3) +
+  facet_wrap(.~stock_id, scales = "free", ncol = 3) +
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Abundance units") +
-  base_theme+theme(legend.position = "none")
+  base_theme+theme(legend.position = c(0.4, 0.2))+guides(shape = "none")
 
 small_whale
 
 dol_por <- ggplot(data = data_time_cetacean %>% filter(catg2 %in% c("Dolphins", "Porpoise")), aes(x = year, y = abundance, color = survey_method)) +
   geom_point(aes(shape = abundance_units), position = position_dodge(width = 1))+
   geom_pointrange(aes(ymin = abundance_low, ymax = abundance_hi, shape = abundance_units), position = position_dodge(width = 1), fatten = 1)+
-  facet_wrap(.~stock, scales = "free", ncol = 3) +
+  scale_y_continuous(labels = scales::comma) +
+  facet_wrap(.~stock_id, scales = "free", ncol = 3) +
   labs(x = "Year", y = "Abundance")+
   scale_color_manual(name = "Survey method", values = survey_color) +
   scale_shape_discrete(name = "Abundance units") +
-  base_theme+theme(legend.position = "none")
+  base_theme+guides(shape = "none")
 
 dol_por
 
@@ -246,10 +215,10 @@ ggsave(large_whale, filename = file.path(plotdir, "Fig1a_large_whale_time_series
        width = 8, height = 8, units = "in", dpi = 600)
 
 ggsave(small_whale, filename = file.path(plotdir, "Fig1b_small_whale_time_series.png"),
-       width = 10, height = 10, units = "in", dpi = 600)
+       width = 6, height = 6, units = "in", dpi = 600)
 
 ggsave(dol_por,  filename = file.path(plotdir, "Fig1c_dolphin_porpoise_time_series.png"),
-       width = 10, height = 10, units = "in", dpi = 600)
+       width = 8, height = 9, units = "in", dpi = 600)
 
 # save the time-series figures for Phocids (seal)
 
@@ -261,6 +230,9 @@ ggsave(hms, filename = file.path(plotdir, "Fig2b_Hawaiian_monk_seal_time_series.
 
 ggsave(hs_ak, filename = file.path(plotdir, "Fig2c_Harbor_seal_Alaska_time_series.png"),
        width = 8, height = 8, units = "in", dpi = 600)
+
+ggsave(hs_wc, filename = file.path(plotdir, "Fig2d_Harbor_seal_west_coast_time_series.png"),
+       width = 6, height = 7, units = "in", dpi = 600)
 
 # save the time-series figures for Otarrids (sealion)
 

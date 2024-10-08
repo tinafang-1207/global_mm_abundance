@@ -20,7 +20,7 @@ data_abundance_clean <- data_orig %>%
   subset(species != "") %>%
   #categorize survey method
   mutate(survey_method = case_when(survey_method %in% c("Species distribution model","Model-Based, Encounter on Shipboard Line-transect Surveys","Population reconstruction model")~"Other model",
-                                   survey_method %in% c("Bayesian Trend Analysis", "Bayesian Line-transect", "Aerial Survey, Bayesian Model")~"Bayesian analysis",
+                                   survey_method %in% c("Bayesian Trend Analysis", "Bayesian Line-transect", "Aerial Survey, Bayesian Model", "Bayesian trend")~"Bayesian analysis",
                                    survey_method %in% c("Iced-based count, Acoustic","Shore-Based Count","Direct count","Pup counts","Capture-recapture, Field Counts, Trend Analysis","Haul-out counts","Shore-based counts")~"Count",
                                    survey_method %in% c("Ship-Based Line-transect", "Acoustic Point-Transect", "Design-Based, Encounter on Shipboard Line-transect Surveys")~"Line-transect",
                                    survey_method %in% c("Photo Mark Recapture","Photo Mark-Recapture", "Mark Recapture")~"Mark recapture",

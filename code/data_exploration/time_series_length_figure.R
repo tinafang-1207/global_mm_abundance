@@ -52,7 +52,7 @@ data_final <- data_clean %>%
   group_by(new_id) %>%
   mutate(max_abundance = max(abundance,na.rm = TRUE)) %>%
   group_by(new_id) %>%
-  mutate(proportion_abundance = abundance/max_abundance, na.rm = TRUE)
+  mutate(proportion_abundance = abundance/max_abundance)
 
 
 # make figure 
