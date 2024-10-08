@@ -85,25 +85,50 @@ hs_ak
 
 # Time-series figures below are problematic
 
-# hs_ca <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - California"), aes(x = year, y = abundance, color = survey_method)) +
-#   geom_point(aes(shape = sub_area))+
-#   facet_wrap(.~stock, scales = "free", ncol = 3) +
-#   labs(x = "Year", y = "Abundance")+
-#   scale_color_manual(name = "Survey method", values = survey_color) +
-#   scale_shape_discrete(name = "Sub-area") +
-#   base_theme
-# 
-# hs_ca
-# 
-# hs_or_wa <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Oregon/Washington Coastal"), aes(x = year, y = abundance, color = survey_method)) +
-#   geom_point(aes(shape = sub_area))+
-#   facet_wrap(.~stock, scales = "free", ncol = 3) +
-#   labs(x = "Year", y = "Abundance")+
-#   scale_color_manual(name = "Survey method", values = survey_color) +
-#   scale_shape_discrete(name = "Sub-area") +
-#   base_theme
-# 
-# hs_or_wa
+hs_ca <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - California"), aes(x = year, y = abundance, color = survey_method)) +
+  geom_point(aes(shape = sub_area))+
+  facet_wrap(.~stock, scales = "free", ncol = 3) +
+  scale_y_continuous(breaks=seq(0, 30000, 5000)) +
+  labs(x = "Year", y = "Abundance")+
+  scale_color_manual(name = "Survey method", values = survey_color) +
+  scale_shape_discrete(name = "Sub-area") +
+  base_theme
+
+hs_ca
+ 
+hs_wa <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Oregon/Washington Coastal"&sub_area == "Washignton Coastal"), aes(x = year, y = abundance, color = survey_method)) +
+  geom_point()+
+  scale_y_continuous(breaks = seq(0, 14000, 2000))+
+  facet_wrap(.~stock, scales = "free")+
+  labs(x = "Year", y = "Abundance")+
+  scale_color_manual(name = "Survey method", values = survey_color)+
+  scale_shape_discrete(name = "Sub-area") +
+  base_theme
+
+hs_wa
+
+hs_or <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Oregon/Washington Coastal"&sub_area == "Oregon Coastal"), aes(x = year, y = abundance, color = survey_method)) +
+  geom_point()+
+  scale_y_continuous(breaks = seq(0, 6000, 2000)) +
+  facet_wrap(.~stock, scales = "free")+
+  labs(x = "Year", y = "Abundance")+
+  scale_color_manual(name = "Survey method", values = survey_color)+
+  scale_shape_discrete(name = "Sub-area") +
+  base_theme
+
+hs_or
+
+hs_wa_inland <- ggplot(data = data_time_pinniped %>% filter(stock == "Harbor seal - Washington Inland"), aes(x = year, y = abundance, color = survey_method)) +
+  geom_point()+
+  scale_y_continuous(breaks = seq(0, 16000, 4000)) +
+  facet_wrap(.~stock, scales = "free")+
+  labs(x = "Year", y = "Abundance")+
+  scale_color_manual(name = "Survey method", values = survey_color)+
+  base_theme
+
+hs_wa_inland
+
+
 
 # Make figures for Otarrids (fur seal and sea lion)
 
