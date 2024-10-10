@@ -9,7 +9,7 @@ library(tidyverse)
 
 data_orig <- read_csv("data/raw_data/U.S_Abundance.csv",na = "-")
 
-species_key <- read_csv("data/raw_data/species_key.csv")
+species_key <- read_csv("data/raw_data/species_key.csv", na = "-")
 
 # clean aundance time-series data
 
