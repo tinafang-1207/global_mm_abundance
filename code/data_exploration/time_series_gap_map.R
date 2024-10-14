@@ -5,6 +5,8 @@ rm(list = ls())
 #### read in package ####
 library(tidyverse)
 library(scatterpie)
+library(cowplot)
+library(sf)
 
 
 ### read in data ###
@@ -108,28 +110,6 @@ us_region <- bind_rows(us_region_1, us_region_2) %>%
   slice(-c(31,32,33,34,35,36))
 
 
-
-  # group_by(us_region_1, us_region_2, catg2) %>%
-  # summarize(total_stocks = n()) %>%
-  # mutate(total_stocks = case_when(us_region_1 == "Southeast" & catg2 == "Dolphins"~46,
-  #                                 us_region_1 == "Southeast" & catg2 == "Large whales"~6,
-  #                                 us_region_1 == "Southeast" & catg2 == "Small whales"~25,
-  #                                 us_region_1 == "New England/Mid-Atlantic" & catg2 == "Dolphins"~14,
-  #                                 us_region_1 == "New England/Mid-Atlantic"& catg2 == "Large whales"~6,
-  #                                 us_region_1 == "New England/Mid-Atlantic"&catg2 == "Small whales"~15,
-  #                                 us_region_1 == "Alaska"&catg2 == "Large whales"~7,
-  #                                 us_region_1 == "Alaska"&catg2 == "Otarrids"~3,
-  #                                 us_region_1 == "Alaska"&catg2 == "Phocids"~9,
-  #                                 us_region_1 == "West Coast"&catg2 == "Large whales"~7,
-  #                                 us_region_1 == "West Coast"&catg2 == "Otarrids"~3,
-  #                                 us_region_1 == "West Coast"&catg2 == "Phocids"~8,
-  #                                 .default = total_stocks
-  #                                 )) %>%
-  # ungroup() %>%
-  # select(-us_region_2) %>%
-  # rename(us_region = us_region_1)
-
-
 # combine the year numbers of cetacean and pinnipeds, calculate total stocks by region
 data_clean_total <- bind_rows(data_clean_cetacean, data_clean_pinniped)
 
@@ -176,7 +156,12 @@ data_final <- left_join(us_region, us_region_est, by = c("us_region" = "us_regio
   mutate(percentage_no_est = round(percentage_no_est,0),
          percentage_less_est = round(percentage_less_est,0),
          percentage_great_est = round(percentage_great_est,0)) %>%
-  left_join(us_region_coord, by = "us_region")
+  left_join(us_region_coord, by = "us_region") %>%
+  mutate(radius = case_when(total_stocks >=1 & total_stocks<5~1,
+                            total_stocks >=5 & total_stocks<10~2,
+                            total_stocks >=10 & total_stocks<20~3,
+                            total_stocks >=20~4))
+  
 
 # Make the figure
 
@@ -198,13 +183,57 @@ base_theme <- theme(axis.text=element_text(size=7),
                     legend.background = element_rect(fill=alpha('blue', 0)))
 
 
-ggplot() +
+main_map <- ggplot() +
+  geom_sf(data = usa, fill = "grey85", col = "white", linewidth = 0.2, inherit.aes = F) +
+  geom_scatterpie(data = data_final %>% filter(catg2 == "Dolphins"),
+                  aes(x = long, y = lat, group = us_region, r = radius),
+                  cols = c("percentage_no_est", "percentage_less_est", "percentage_great_est"), color = NA )+
+  coord_sf(xlim = c(-65, -140), ylim = c(20, 50)) +
+  facet_wrap(.~catg2) +
+  theme_bw() +base_theme
+
+main_map
+
+
+insert_AK <- ggplot() +
   geom_sf(data = usa, fill = "grey85", col = "white", linewidth = 0.2, inherit.aes = F) +
   geom_scatterpie(data = data_final %>% filter(catg2 == "Dolphins"),
                   aes(x = long, y = lat, group = us_region),
                   cols = c("percentage_no_est", "percentage_less_est", "percentage_great_est"), color = NA )+
-  coord_sf(xlim = c(-70, -160), ylim = c(15, 70)) +
-  theme_bw()
+  coord_sf(xlim = c(-140, -170), ylim = c(50, 72)) +
+  theme_void() +
+  theme(panel.border = element_rect(fill = NA, color = "black"),
+        panel.background = element_rect(fill = "white"),
+        legend.position = "none")
+
+insert_AK
+
+insert_HI <- ggplot() +
+  geom_sf(data = usa, fill = "grey85", col = "white", linewidth = 0.2, inherit.aes = F) +
+  geom_scatterpie(data = data_final %>% filter(catg2 == "Dolphins"),
+                  aes(x = long, y = lat, group = us_region, r = 0.8),
+                  cols = c("percentage_no_est", "percentage_less_est", "percentage_great_est"), color = NA )+
+  coord_sf(xlim = c(-155, -161), ylim = c(19,23)) +
+  theme_void() +
+  theme(panel.border = element_rect(fill = NA, color = "black"),
+        panel.background = element_rect(fill = "white"),
+        legend.position = "none")
+
+insert_HI
+
+ggdraw() +
+  draw_plot(main_map) +
+  draw_plot(insert_AK,
+            height = 0.2,
+            x = -0.35,
+            y = 0.51) +
+  draw_plot(insert_HI,
+            height = 0.15,
+            x = -0.33,
+            y = 0.35)
+
+
+
 
 
 
