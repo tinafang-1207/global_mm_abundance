@@ -22,6 +22,34 @@ us_region_coord <- read.csv("data/raw_data/us_region_coordinates.csv")
 # read in u.s shapefile
 usa <- rnaturalearth::ne_states(country = "United States of America", returnclass = "sf")
 
+usa <- usa %>%
+  mutate(fishery_region = case_when(name %in% c("Connecticut",
+                                                 "Maine",
+                                                 "Massachusetts",
+                                                 "New Hemisphere",
+                                                 "Rhode Islands",
+                                                 "Vermont",
+                                                 "Maryland",
+                                                 "Delaware",
+                                                 "Virginia",
+                                                 "New Jersey",
+                                                 "New York",
+                                                 "Pennsylvania"
+                                                 )~"New England/Mid-Atlantic",
+                                    name %in% c("Alabama",
+                                                 "Mississipi",
+                                                 "Louisiana",
+                                                 "Texas",
+                                                 "North Carolina",
+                                                 "South Carolina",
+                                                 "Georgia",
+                                                 "Florida")~"Southeast",
+                                    name %in% c("California", "Oregon", "Washignton")~"West Coast",
+                                    name == "Alaska"~"Alaska",
+                                    name == "Hawaii"~"Pacific Islands"))
+
+
+
 ### clean data ###
 
 # clean data for cetaceans
@@ -161,6 +189,35 @@ data_final <- left_join(us_region, us_region_est, by = c("us_region" = "us_regio
                             total_stocks >=5 & total_stocks<10~2,
                             total_stocks >=10 & total_stocks<20~3,
                             total_stocks >=20~4))
+
+
+
+data_final_ak <- data_final %>% 
+  filter(us_region == "Alaska")
+
+data_final_ak_sf <- st_as_sf(x = data_final_ak,
+                             coords = c("long", "lat"),
+                             crs = 4326)
+
+data_final_ak_sf_3467 <- data_final_ak_sf %>%
+  st_transform(data_final_ak_sf, crs = 3467)
+
+data_final_ak_sf_3467$long <- st_coordinates(data_final_ak_sf_3467)[,1]
+data_final_ak_sf_3467$lat <- st_coordinates(data_final_ak_sf_3467)[,2]
+data_final_ak_3467_df <- data_final_ak_sf_3467 %>%
+  st_drop_geometry()
+
+data_final_ak$long <- st_coordinates(data_final_ak_sf)[,1]
+data_final_ak$lat <-st_coordinates(data_final_ak_sf)[,2]
+
+usa_ak <- usa%>%
+  filter(name == "Alaska")
+
+usa_ak_transform <- usa_ak %>%
+  st_transform(usa_ak, crs = 3467)
+
+ggplot() +
+  geom_sf(usa_ak_transform, mapping = aes())
   
 
 # Make the figure
@@ -188,49 +245,47 @@ main_map <- ggplot() +
   geom_scatterpie(data = data_final %>% filter(catg2 == "Dolphins"),
                   aes(x = long, y = lat, group = us_region, r = radius),
                   cols = c("percentage_no_est", "percentage_less_est", "percentage_great_est"), color = NA )+
-  coord_sf(xlim = c(-65, -140), ylim = c(20, 50)) +
+  coord_sf(xlim = c(-65, -130), ylim = c(10, 50)) +
   facet_wrap(.~catg2) +
   theme_bw() +base_theme
 
 main_map
 
 
+
 insert_AK <- ggplot() +
-  geom_sf(data = usa, fill = "grey85", col = "white", linewidth = 0.2, inherit.aes = F) +
-  geom_scatterpie(data = data_final %>% filter(catg2 == "Dolphins"),
-                  aes(x = long, y = lat, group = us_region),
-                  cols = c("percentage_no_est", "percentage_less_est", "percentage_great_est"), color = NA )+
-  coord_sf(xlim = c(-140, -170), ylim = c(50, 72)) +
-  theme_void() +
-  theme(panel.border = element_rect(fill = NA, color = "black"),
-        panel.background = element_rect(fill = "white"),
-        legend.position = "none")
+  geom_sf(data = usa_ak, fill = "grey85", col = "white", linewidth = 0.2, inherit.aes = F) +
+  geom_scatterpie(data = data_final_ak_3467_df%>% filter(catg2 == "Dolphins"),
+                  aes(x = long, y = lat, group = us_region, r = 200000),
+                  cols = colnames(data_final_ak_3467_df[,c(7:9)]), color = NA )+
+  coord_sf(xlim = c(-2400000, 1600000), ylim = c(200000, 2500000), crs = 3467) +
+  theme_void() + theme(legend.position = "none")
+  
 
 insert_AK
 
 insert_HI <- ggplot() +
   geom_sf(data = usa, fill = "grey85", col = "white", linewidth = 0.2, inherit.aes = F) +
-  geom_scatterpie(data = data_final %>% filter(catg2 == "Dolphins"),
-                  aes(x = long, y = lat, group = us_region, r = 0.8),
+  geom_scatterpie(data = data_final%>% filter(catg2 == "Dolphins"),
+                  aes(x = long, y = lat, group = us_region, r = 0.7),
                   cols = c("percentage_no_est", "percentage_less_est", "percentage_great_est"), color = NA )+
   coord_sf(xlim = c(-155, -161), ylim = c(19,23)) +
-  theme_void() +
-  theme(panel.border = element_rect(fill = NA, color = "black"),
-        panel.background = element_rect(fill = "white"),
-        legend.position = "none")
-
+  theme_void() + theme(legend.position = "none")
+  
+  
+  
 insert_HI
 
 ggdraw() +
   draw_plot(main_map) +
   draw_plot(insert_AK,
             height = 0.2,
-            x = -0.35,
-            y = 0.51) +
+            x = -0.15,
+            y = 0.23) +
   draw_plot(insert_HI,
-            height = 0.15,
-            x = -0.33,
-            y = 0.35)
+            height = 0.2,
+            x = 0.1,
+            y = 0.23)
 
 
 
