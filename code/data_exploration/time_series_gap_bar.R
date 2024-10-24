@@ -153,50 +153,52 @@ data_final <- left_join(us_region, us_region_est, by = c("us_region" = "us_regio
 
 data_final_bar <- data_final %>%
   gather(key = "percentage_catg", value = "percentage", percentage_no_est, percentage_less_est, percentage_great_est) %>%
+  mutate(percentage = ifelse(us_region == "West Coast"&catg2 == "Large whales"&percentage_catg == "percentage_great_est", 72, percentage)) %>%
   filter(catg2 %in% c("Large whales", "Small whales", "Dolphins", "Porpoise", "Otarrids", "Phocids")) %>%
-  #gather(key = "raw_catg", value = "raw", catg_no_est, catg_less, catg_great) %>%
+  mutate(us_region = factor(us_region, levels = c("Pacific Islands", "Alaska", "West Coast", "Southeast", "New England/Mid-Atlantic")))%>%
+  mutate(catg2 = factor(catg2, levels = c("Large whales", "Small whales", "Dolphins", "Porpoise", "Otarrids", "Phocids"))) %>%
+  mutate(percentage_catg = case_when(percentage_catg == "percentage_no_est"~"No data",
+                                     percentage_catg == "percentage_less_est"~"Less than 7 estimates/10 years",
+                                     percentage_catg == "percentage_great_est"~"More than 7 estimates/10 years")) %>%
+  mutate(percentage_catg = factor(percentage_catg, levels = c("No data", "Less than 7 estimates/10 years", "More than 7 estimates/10 years"))) %>%
   mutate(label = paste0(percentage, "%")) %>%
   mutate(label_stock = paste0("n=", total_stocks)) %>%
   filter(! label == "0%") %>%
-  mutate(us_region = factor(us_region, levels = c("Pacific Islands", "Alaska", "West Coast", "Southeast", "New England/Mid-Atlantic")))%>%
-  mutate(catg2 = factor(catg2, levels = c("Large whales", "Small whales", "Dolphins", "Porpoise", "Otarrids", "Phocids"))) %>%
-  slice(-c(23,40)) %>%
-  mutate(percentage_catg = case_when(percentage_catg == "percentage_no_est"~"No data",
-                                     percentage_catg == "percentage_less_est"~"Less than 7 estimates/10 years",
-                                     percentage_catg == "percentage_great_est"~"More than 7 estimates/10 years"))
+  slice(-c(23,40))
+  
 
 
-base_theme <- theme(axis.text=element_text(size=8),
-                    axis.title=element_text(size=9),
-                    legend.text=element_text(size=8),
-                    legend.title=element_text(size=9),
-                    strip.text=element_text(size=8),
-                    plot.tag=element_text(size=9),
-                    plot.title=element_text(size=9),
-                    plot.subtitle = element_text(size=8, face="italic"),
-                    # Gridlines
-                    panel.grid.major = element_blank(), 
-                    panel.grid.minor = element_blank(),
-                    panel.background = element_blank(), 
-                    axis.line = element_line(colour = "black"),
-                    # Legend
-                    legend.key = element_rect(fill = NA, color=NA),
-                    legend.background = element_rect(fill=alpha('blue', 0)))
+
+base_theme <-  theme(axis.text=element_text(size=8),
+                   axis.title=element_text(size=9),
+                   legend.text=element_text(size=8),
+                   legend.title=element_text(size=9),
+                   strip.text=element_text(size=8),
+                   plot.title=element_text(size=9),
+                   # Gridlines
+                   panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank(),
+                   panel.background = element_blank(), 
+                   axis.line = element_line(colour = "black"),
+                   # Legend
+                   legend.key = element_rect(fill = NA, color=NA),
+                   legend.background = element_rect(fill=alpha('blue', 0)))
+
+
+
 
 percentage_type <- c("No data" = "#adb6b6", "Less than 7 estimates/10 years" = "#ffdc91", "More than 7 estimates/10 years" = "#925e9f")
 
 
-g_coverage <- ggplot(data = data_final_bar, aes(x = us_region, y = percentage, fill = percentage_catg)) +
-  geom_bar(position = position_stack(), stat = "identity", width = 0.7) +
+g_coverage <- ggplot(data = data_final_bar, aes(x=percentage, y = us_region, fill = percentage_catg)) +
+  facet_grid(catg2~., space = "free_y", scales = "free_y") +
+  geom_bar(position = position_stack(), stat = "identity", color = "grey30", lwd = 0.2) +
   geom_text(aes(label = label), position = position_stack(vjust = 0.5), size = 2.1, color = "black", fontface = "bold") +
+  geom_text(aes(label = label_stock, x=101, y = us_region),hjust = 0, inherit.aes = F, size = 2.2, color = "black") +
+  labs(x = "Percentage of stocks", y = "") +
   scale_fill_manual(name = "Category", values = percentage_type) +
-  facet_wrap(.~catg2, scales = "free", ncol = 3) +
-  coord_flip() +
-  theme_bw() + base_theme + theme(legend.position = "none",
-                                  axis.ticks.x = element_blank(),
-                                  axis.text.x = element_blank(),
-                                  axis.title.x = element_blank(),
-                                  axis.title.y = element_blank())
+  scale_x_continuous(lim = c(0, 110), breaks = seq(0,100,25)) +
+  theme_bw() + base_theme
 
 
 
