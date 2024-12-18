@@ -20,8 +20,8 @@ plot(y ~ x, type="line")
 
 # k
 k1<- 306220
-k2 <-30622000
-x<-seq(0, 65000000, 100000)
+k2 <-3062200
+x<-seq(0, 3062200, 100000)
 y <- dlnorm(x, meanlog=log((k1+k2)/2), sdlog=log( ((k1+k2)/2) - log(k1)) /2 )
 plot(y ~ x, type="line")
 
@@ -35,6 +35,10 @@ x <- seq(0, 1, 0.001)
 y <- dbeta(x, shape1=1, shape2=1)  
 plot(y ~ x)
 
+# sigma and tau
+x<- seq(0, 1, 0.001)
+y<-invgamma::dinvgamma(x, 4, 0.01)
+plot(y~x)
 
 ### posterior
 posterior_draw_clean <- posterior_draw%>%
@@ -60,6 +64,7 @@ g_abundance <- ggplot(output_clean%>% filter(estimation_type %in% c("mean", "X2.
 
 g_abundance
 
+ggplot(input_df, )
 
 
 

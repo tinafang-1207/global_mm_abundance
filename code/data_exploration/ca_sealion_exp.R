@@ -25,8 +25,8 @@ stan_data <- list(
   N_1 = max_year-min_year+1,
   Catch_1 = catch,
   Abundance_1 = abundance,
-  k_1_prior = c(max(abundance), max(abundance*100)),
-  r_1_prior = c(0.05, 0.5)
+  k_1_prior = c(max(abundance)*0.8, max(abundance)*2),
+  r_1_prior = c(0.01, 0.25)
 )
 
 
@@ -52,7 +52,7 @@ write.csv(df_of_draws, "data/exp_data/posterior_draw.csv")
 write.csv(output, "data/exp_data/output.csv")
 
 
-
+q~dlnorm(x, meanlog = log(1), sdlog = 0.05)
 
 
 
