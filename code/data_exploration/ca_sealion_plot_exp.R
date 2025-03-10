@@ -52,19 +52,33 @@ p_posterior <- ggplot(posterior_draw_clean, aes(x=Value))+
 
 p_posterior
 
-### biomass
+### abundance
+
+
+
 output_clean <- output %>%
   rename(est_variables = X) %>%
   filter(str_detect(est_variables, "N_med")) %>%
-  gather(key = "estimation_type", value = "estimation", mean, se_mean, sd, X2.5., X25., X50.,X75.,X97.5., n_eff, Rhat)
+  mutate(est_variables = 1975:2022) %>%
+  gather(key = "estimation_type", value = "estimation", mean, se_mean, sd, X2.5., X25., X50.,X75.,X97.5., n_eff, Rhat) %>%
+  mutate(est_variables = as.numeric(est_variables))
+
+
 
 g_abundance <- ggplot(output_clean%>% filter(estimation_type %in% c("mean", "X2.5.", "X97.5.")), aes(x = est_variables, y = estimation, group = estimation_type)) +
+  geom_point(data = output_clean %>% filter(estimation_type == "mean"),
+             aes(x = est_variables, y = estimation), color = "black", size = 1, shape = 1) +
   geom_line(aes(linetype = estimation_type)) +
+  geom_hline(yintercept = 275298, color = "blue") +
+  geom_hline(yintercept = 183481, color = "red") +
+  scale_x_continuous(breaks = seq(1975, 2014, by = 5)) +
+  labs(x = "Year", y = "Estimated Abundance") +
   theme_bw()
 
 g_abundance
 
-ggplot(input_df, )
+ggsave(g_abundance, filename=file.path("figures/exp_sealion_trend.png"), 
+       width=6, height=4.5, units="in", dpi=600)
 
 
 

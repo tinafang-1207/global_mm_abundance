@@ -39,6 +39,8 @@ data {
 
 // Defines the parameters estimated in the model
 //sigma and tau represents observation errors for absolute abundance and incidental mortality respectively
+//m is the shape parameter (model parameter)
+//F is the instantaneous mortality (this even exists for marine mammal?)
 
 parameters {
   real <lower=0> r_1;

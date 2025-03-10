@@ -14,8 +14,11 @@ input_df <- read.csv("data/clean_data/ca_sealion_input_df.csv")
 
 ### specify data
 
-min_year = min(input_df$year[which(input_df$abundance>0)], input_df$year[which(input_df$incidental_mortality>0)])
-max_year = max(input_df$year[which(input_df$abundance>0)], input_df$year[which(input_df$incidental_mortality>0)])
+#min_year = min(input_df$year[which(input_df$abundance>0)])
+#max_year = max(input_df$year[which(input_df$abundance>0)])
+
+min_year = 1975
+max_year = 2022
 abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
 catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$incidental_mortality
 
@@ -48,12 +51,17 @@ df_of_draws <- as.data.frame(fit_SPM_stan)
 
 
 #save the result
+#k = 1.5max(abundance)
 write.csv(df_of_draws, "data/exp_data/posterior_draw.csv")
 write.csv(output, "data/exp_data/output.csv")
 
+#k = 2max(abundance)
+write.csv(df_of_draws, "data/exp_data/posterior_draw_k_2.csv")
+write.csv(output, "data/exp_data/output_k_2.csv")
 
-q~dlnorm(x, meanlog = log(1), sdlog = 0.05)
-
+# all years
+write.csv(df_of_draws, "data/exp_data/posterior_draw_all_year.csv")
+write.csv(output, "data/exp_data/output_all_year.csv")
 
 
 
