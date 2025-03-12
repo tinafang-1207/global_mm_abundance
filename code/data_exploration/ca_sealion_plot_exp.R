@@ -6,7 +6,8 @@ rm(list = ls())
 library(tidyverse)
 
 ### read in data
-posterior_draw <- read.csv("data/exp_data/posterior_draw.csv")
+original_df <- read.csv("data/clean_data/ca_sealion_input_df.csv")
+posterior_draw <- read.csv("data/exp_data/posterior_draw_k_2.csv")
 output <- read.csv("data/exp_data/output.csv")
 
 ### prior
@@ -45,6 +46,10 @@ posterior_draw_clean <- posterior_draw%>%
   select(r_1, k_1, P_initial_1, sigma_sq_1, tau_sq_1, m_1) %>%
   gather(key = "Parameter", value = "Value", r_1, k_1, P_initial_1, sigma_sq_1, tau_sq_1, m_1)
 
+posterior_k <- posterior_draw_clean %>%
+  group_by(Parameter) %>%
+  summarize(median = median(Value))
+
 p_posterior <- ggplot(posterior_draw_clean, aes(x=Value))+
   geom_density() +
   facet_wrap(.~Parameter, scales = "free")+
@@ -59,16 +64,20 @@ p_posterior
 output_clean <- output %>%
   rename(est_variables = X) %>%
   filter(str_detect(est_variables, "N_med")) %>%
-  mutate(est_variables = 1975:2022) %>%
+  mutate(est_variables = 1975:2014) %>%
   gather(key = "estimation_type", value = "estimation", mean, se_mean, sd, X2.5., X25., X50.,X75.,X97.5., n_eff, Rhat) %>%
   mutate(est_variables = as.numeric(est_variables))
 
+original_df_clean <- original_df %>%
+  filter(year <=2014)
 
 
-g_abundance <- ggplot(output_clean%>% filter(estimation_type %in% c("mean", "X2.5.", "X97.5.")), aes(x = est_variables, y = estimation, group = estimation_type)) +
+
+g_abundance <- ggplot() +
   geom_point(data = output_clean %>% filter(estimation_type == "mean"),
              aes(x = est_variables, y = estimation), color = "black", size = 1, shape = 1) +
-  geom_line(aes(linetype = estimation_type)) +
+  geom_point(data = original_df_clean, aes(x = year, y = abundance), color = "red", size = 1, shape = 1) +
+  geom_line(data = output_clean%>% filter(estimation_type %in% c("mean", "X2.5.", "X97.5.")), mapping = aes(x = est_variables, y = estimation, group = estimation_type, linetype = estimation_type)) +
   geom_hline(yintercept = 275298, color = "blue") +
   geom_hline(yintercept = 183481, color = "red") +
   scale_x_continuous(breaks = seq(1975, 2014, by = 5)) +
