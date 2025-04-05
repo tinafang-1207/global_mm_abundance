@@ -93,6 +93,7 @@ model {
 }
 
 // specify generated quantities - want to estimate the absolute abundance
+// why is it 2 inside MNPL_PT(), Shouldn't it be PMSY?
 
 generated quantities {
   vector[N_1] N_med;
