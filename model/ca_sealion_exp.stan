@@ -7,7 +7,7 @@
 //N_PT: represents real absolute abundance, which is P*k
 functions{
   real SP_PT(real P, real r, real k, real m) {
-  return r/(m-1)*P*k*(1-P^(m-1));
+  return r*P*k*(1-P^m);
   }
   
   real catch_PT(real P, real k, real F){
@@ -15,11 +15,17 @@ functions{
   }
   
   real P_PT(real P, real r, real k, real m, real F){
-  return P+r/(m-1)*P*(1-P^(m-1))-P*(1-exp(-F));
+  return P+r*P*(1-P^m)-P*(1-exp(-F));
   }
   
   real N_PT(real P, real k){
   return P*k;
+  }
+  
+  real MNPL_PT(real k, real m){
+  real PMNPL;
+  PMNPL = (1+m)^-(1/m);
+  return PMNPL*k;
   }
 }
 
@@ -77,7 +83,7 @@ model {
  tau_sq_1~inv_gamma(4, 0.01);
  F_1~exponential(1);
  P_initial_1~beta(1,1);
- log(m_1)~skew_normal(-0.5,1,10);
+ log(m_1)~skew_normal(0,1,10);
  target += -log(m_1);
  
  //observation of absolute abundance and incidental mortality
@@ -96,7 +102,10 @@ model {
 // why is it 2 inside MNPL_PT(), Shouldn't it be PMSY?
 
 generated quantities {
+  real MNPL;
   vector[N_1] N_med;
+  
+  MNPL = MNPL_PT(k_1, m_1);
   
   for (t in 1:N_1){
     N_med[t] = N_PT(P_med_1[t], k_1);

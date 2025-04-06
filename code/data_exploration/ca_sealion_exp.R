@@ -28,7 +28,7 @@ stan_data <- list(
   N_1 = max_year-min_year+1,
   Catch_1 = catch,
   Abundance_1 = abundance,
-  k_1_prior = c(max(abundance)*0.8, max(abundance)*100),
+  k_1_prior = c(max(abundance)*0.8, max(abundance)*2),
   r_1_prior = c(0.01, 0.25)
 )
 
