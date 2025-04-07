@@ -1,49 +1,48 @@
-species,year,abundance,incidental_mortality
-California sea lion,1975,88924,-999
-California sea lion,1976,94170,-999
-California sea lion,1977,91199,-999
-California sea lion,1978,90913,-999
-California sea lion,1979,92812,-999
-California sea lion,1980,94333,-999
-California sea lion,1981,96997,-999
-California sea lion,1982,104780,-999
-California sea lion,1983,96807,-999
-California sea lion,1984,93011,-999
-California sea lion,1985,93012,-999
-California sea lion,1986,96676,-999
-California sea lion,1987,101844,-999
-California sea lion,1988,106850,-999
-California sea lion,1989,116183,-999
-California sea lion,1990,126321,-999
-California sea lion,1991,139223,-999
-California sea lion,1992,140338,-999
-California sea lion,1993,139859,-999
-California sea lion,1994,154128,-999
-California sea lion,1995,169098,-999
-California sea lion,1996,183101,-999
-California sea lion,1997,191799,-999
-California sea lion,1998,145911,-999
-California sea lion,1999,167358,-999
-California sea lion,2000,191632,-999
-California sea lion,2001,195805,-999
-California sea lion,2002,200865,-999
-California sea lion,2003,192075,-999
-California sea lion,2004,200327,-999
-California sea lion,2005,215248,-999
-California sea lion,2006,242193,-999
-California sea lion,2007,259004,191
-California sea lion,2008,281450,-999
-California sea lion,2009,276155,254
-California sea lion,2010,246331,198
-California sea lion,2011,275489,152
-California sea lion,2012,306220,155
-California sea lion,2013,253662,158
-California sea lion,2014,257606,162
-California sea lion,2015,-999,356
-California sea lion,2016,-999,250
-California sea lion,2017,-999,174
-California sea lion,2018,-999,164
-California sea lion,2019,-999,204
-California sea lion,2020,-999,226
-California sea lion,2021,-999,284
-California sea lion,2022,-999,229
+"year","abundance","total_catch"
+1975,88924,-999
+1976,94170,-999
+1977,91199,-999
+1978,90913,-999
+1979,92812,-999
+1980,94333,-999
+1981,96997,827
+1982,104780,1313
+1983,96807,1379
+1984,93011,1482
+1985,93012,1743
+1986,96676,1808
+1987,101844,3437
+1988,106850,1934
+1989,116183,2047
+1990,126321,1416
+1991,139223,1809
+1992,140338,2809
+1993,139859,1715
+1994,154128,1140
+1995,169098,1110
+1996,183101,1078
+1997,191799,1177
+1998,145911,1074
+1999,167358,1394
+2000,191632,1447
+2001,195805,808
+2002,200865,795
+2003,192075,643
+2004,200327,542
+2005,215248,343
+2006,242193,289
+2007,259004,582
+2008,281450,506
+2009,276155,1238
+2010,246331,944
+2011,275489,436
+2012,306220,487
+2013,253662,242
+2014,257606,195
+2015,-999,433
+2016,-999,446
+2017,-999,413
+2018,-999,407
+2019,-999,484
+2020,-999,436
+2021,-999,494
