@@ -14,7 +14,7 @@ functions{
   return P*k*(1-exp(-F));
   }
   
-  real P_PT(real P, real r, real k, real m, real F){
+  real P_PT(real P, real r, real m, real F){
   return P+r*P*(1-P^m)-P*(1-exp(-F));
   }
   
@@ -68,7 +68,7 @@ transformed parameters {
   P_med_1[1] = P_initial_1;
   C_pred_1[1] = catch_PT(P_med_1[1], k_1, F_1[1]);
   for (t in 2:N_1){
-    P_med_1[t] = P_PT(P_med_1[t-1], r_1, k_1, m_1, F_1[t-1]);
+    P_med_1[t] = P_PT(P_med_1[t-1], r_1, m_1, F_1[t-1]);
     C_pred_1[t] = catch_PT(P_med_1[t], k_1, F_1[t]);
   }
 }

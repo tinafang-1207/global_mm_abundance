@@ -7,8 +7,8 @@ library(tidyverse)
 
 ### read in data
 original_df <- read.csv("data/clean_data/ca_sealion_input_df.csv")
-posterior_draw <- read.csv("data/exp_data/posterior_draw_100k.csv")
-output <- read.csv("data/exp_data/output_100k.csv")
+posterior_draw <- read.csv("data/exp_data/posterior_draw_2k.csv")
+output <- read.csv("data/exp_data/output_2k.csv")
 
 ### prior
 
@@ -42,8 +42,8 @@ y<-invgamma::dinvgamma(x, 4, 0.01)
 plot(y~x)
 
 # shape parameter m
-x<-seq(0,3,length.out = 1000)
-y <-sn::dsn(x, xi = 1, omega = 1, alpha = 10)
+x<-seq(-1,1,length.out = 1000)
+y <-sn::dsn(x, xi = -0.5, omega = 1, alpha = 10)
 plot(y~x)
 
 x_m1 <- exp(x)
@@ -102,6 +102,42 @@ g_abundance <- ggplot() +
   theme_bw()
 
 g_abundance
+
+#######################################################################
+
+# Surplus production
+
+output_clean_surplus <- output %>%
+  rename(est_variable = X) %>%
+  filter(est_variable %in% c("k_1", "m_1", "r_1") | str_detect(est_variable, "N_med|P_med")) %>%
+  select(est_variable, mean) %>%
+  gather(key = "estimation_type", value = "estimation", mean) %>%
+  select(-estimation_type)
+
+k_1 <- output_clean_surplus %>% filter(est_variable == "k_1") %>% pull(estimation)
+r_1 <- output_clean_surplus %>% filter(est_variable == "r_1") %>% pull(estimation)
+m_1 <- output_clean_surplus %>% filter(est_variable == "m_1") %>% pull(estimation)
+
+output_surplus_final <- output_clean_surplus %>%
+  mutate(surplus_production = if_else(str_starts(est_variable, "P_med"),
+                           r_1*estimation*k_1*(1-estimation^m_1),
+                           NA_real_)) %>%
+  filter(!is.na(surplus_production)) %>%
+  select(surplus_production) %>%
+  mutate(year = 1975:2014) %>%
+  select(year, surplus_production)
+
+output_abundance_final <- output_clean %>%
+  filter(estimation_type == "mean") %>%
+  select(est_variables, estimation) %>%
+  rename(year = est_variables,
+         abundance = estimation) 
+
+output_surplus_abundance <- left_join(output_abundance_final, output_surplus_final, by = "year")
+
+ggplot(data = output_surplus_abundance, aes(x = abundance, y = surplus_production)) +
+  geom_point()
+
 
 ggsave(g_abundance, filename=file.path("figures/exp_sealion_trend.png"), 
        width=8, height=4.5, units="in", dpi=600)

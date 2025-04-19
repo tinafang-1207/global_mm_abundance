@@ -29,7 +29,7 @@ stan_data <- list(
   Catch_1 = catch,
   Abundance_1 = abundance,
   k_1_prior = c(max(abundance)*0.8, max(abundance)*2),
-  r_1_prior = c(0.01, 0.25)
+  r_1_prior = c(0.01, 0.15)
 )
 
 
@@ -42,15 +42,19 @@ fit_SPM_stan <- sampling(SPM_stan,
                          warmup = warmup,
                          cores = chain,
                          thin = thin,
-                         control = list(adapt_delta = 0.999, max_treedepth = 12))
+                         control = list(adapt_delta = 0.999, max_treedepth = 15))
+
+### Extract data ###
 
 output <- as.data.frame(summary(fit_SPM_stan)$summary)
 
 
 df_of_draws <- as.data.frame(fit_SPM_stan)
 
+### Traceplot ###
+
 traceplot(fit_SPM_stan, pars = c("r_1", "k_1", "P_initial_1", "sigma_sq_1", "tau_sq_1", "m_1"))
 
-write.csv(output, "data/exp_data/output_100k.csv")
-write.csv(df_of_draws, "data/exp_data/posterior_draw_100k.csv")
+write.csv(output, "data/exp_data/output_2k.csv")
+write.csv(df_of_draws, "data/exp_data/posterior_draw_2k.csv")
 
