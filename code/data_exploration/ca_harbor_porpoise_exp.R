@@ -11,7 +11,7 @@ SPM_stan = stan_model(file = "model/ca_sealion_exp.stan")
 
 ### import the data frame
 input_df <- read.csv("data/clean_data/ca_harbor_porpoise_input_df.csv") %>%
-  filter(stock == "Monterey Bay") %>%
+  filter(stock == "San Francisco - Russian River") %>%
   mutate(total_catch = ifelse(total_catch == 0, -999, total_catch))
 
 # Specify data
@@ -53,6 +53,13 @@ df_of_draws <- as.data.frame(fit_SPM_stan)
 ### Traceplot ###
 
 traceplot(fit_SPM_stan, pars = c("r_1", "k_1", "P_initial_1", "sigma_sq_1", "tau_sq_1", "m_1"))
+
+### Examine correlation between r and k ###
+posterior_matrix = as.matrix(fit_SPM_stan)
+
+bayesplot::mcmc_scatter(posterior_matrix, pars = c("r_1", "k_1"))
+
+bayesplot::mcmc_pairs(posterior_matrix, pars = c("r_1", "k_1"))
 
 # save data
 
