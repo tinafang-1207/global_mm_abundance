@@ -17,7 +17,7 @@ input_df <- read.csv("data/clean_data/ca_sealion_input_df.csv")
 # min_year = min(input_df$year[which(input_df$abundance>0)])
 # max_year = max(input_df$year[which(input_df$abundance>0)])
 
-min_year = 1975
+min_year = 1981
 max_year = 2014
 abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
 catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$total_catch
@@ -57,4 +57,3 @@ traceplot(fit_SPM_stan, pars = c("r_1", "k_1", "P_initial_1", "sigma_sq_1", "tau
 
 write.csv(output, "data/exp_data/output_2k.csv")
 write.csv(df_of_draws, "data/exp_data/posterior_draw_2k.csv")
-

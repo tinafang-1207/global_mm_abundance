@@ -49,6 +49,33 @@ plot(y~x)
 x_m1 <- exp(x)
 plot(y~x_m1)
 
+# catchability q
+
+# Targeting median at 1 (log-median = 0)
+mu <- 0             # log(1) = 0
+sigma <- 0.4        # adjust for skew and tail weight
+
+# Visualize
+curve(dlnorm(x, meanlog = mu, sdlog = sigma), from = 0, to = 2, n = 500,
+      xlab = "q", ylab = "Density", main = "Prior for catchability (q)")
+abline(v = 1, col = "red", lty = 2)  # center
+
+library(sn)
+
+# Generate q1 values using skew-lognormal
+
+xi <- 0      # location (on log-scale)
+omega <- 0.4 # scale
+alpha <- 4   # skew
+
+x<-seq(-2,2,length.out = 1000)
+y <-sn::dsn(x, xi = xi, omega = omega, alpha = alpha)
+plot(y~x)
+
+x_q1 <- exp(x)
+plot(y~x_q1)
+
+
 ### posterior
 posterior_draw_clean <- posterior_draw%>%
   select(r_1, k_1, P_initial_1, sigma_sq_1, tau_sq_1, m_1, MNPL) %>%
@@ -73,8 +100,6 @@ p_posterior <- ggplot(posterior_draw_clean, aes(x=Value))+
 p_posterior
 
 ### abundance
-
-
 
 output_clean <- output %>%
   rename(est_variables = X) %>%

@@ -1,0 +1,152 @@
+"year","stock","abundance","total_catch"
+1981,"Monterey Bay",-999,10
+1981,"Morro Bay",-999,23
+1981,"San Francisco - Russian River",-999,33
+1982,"Monterey Bay",-999,16
+1982,"Morro Bay",-999,54
+1982,"San Francisco - Russian River",-999,101
+1983,"Monterey Bay",-999,27
+1983,"Morro Bay",-999,49
+1983,"San Francisco - Russian River",-999,156
+1984,"Monterey Bay",-999,55
+1984,"Morro Bay",-999,25
+1984,"San Francisco - Russian River",-999,263
+1985,"Monterey Bay",-999,120
+1985,"Morro Bay",-999,23
+1985,"San Francisco - Russian River",-999,417
+1986,"Monterey Bay",1573,78
+1986,"Morro Bay",1980,33
+1986,"San Francisco - Russian River",5014,127
+1987,"Monterey Bay",1527,43
+1987,"Morro Bay",1377,28
+1987,"San Francisco - Russian River",3320,26
+1988,"Monterey Bay",1548,24
+1988,"Morro Bay",1025,20
+1988,"San Francisco - Russian River",3930,6
+1989,"Monterey Bay",1662,57
+1989,"Morro Bay",748,26
+1989,"Northern California - Southern Oregon",7786,-999
+1989,"San Francisco - Russian River",3930,3
+1990,"Monterey Bay",1729,42
+1990,"Morro Bay",547,19
+1990,"Northern California - Southern Oregon",13969,-999
+1990,"San Francisco - Russian River",3930,1
+1991,"Monterey Bay",1751,48
+1991,"Morro Bay",571,7
+1991,"Northern California - Southern Oregon",14656,-999
+1991,"San Francisco - Russian River",3455,14
+1992,"Monterey Bay",1727,44
+1992,"Morro Bay",620,6
+1992,"Northern California - Southern Oregon",15802,-999
+1992,"San Francisco - Russian River",4065,6
+1993,"Monterey Bay",1749,9
+1993,"Morro Bay",669,5
+1993,"Northern California - Southern Oregon",16947,-999
+1993,"San Francisco - Russian River",4201,1
+1994,"Monterey Bay",1794,10
+1994,"Morro Bay",768,4
+1994,"Northern California - Southern Oregon",24275,-999
+1994,"San Francisco - Russian River",4743,1
+1995,"Monterey Bay",1884,14
+1995,"Morro Bay",893,3
+1995,"Northern California - Southern Oregon",26565,-999
+1995,"San Francisco - Russian River",5149,1
+1996,"Monterey Bay",1906,10
+1996,"Morro Bay",1017,1
+1996,"Northern California - Southern Oregon",21756,-999
+1996,"San Francisco - Russian River",6233,0
+1997,"Monterey Bay",1950,63
+1997,"Morro Bay",1167,2
+1997,"Northern California - Southern Oregon",15802,-999
+1997,"San Francisco - Russian River",7859,1
+1998,"Monterey Bay",1972,54
+1998,"Morro Bay",1266,2
+1998,"Northern California - Southern Oregon",15802,-999
+1998,"San Francisco - Russian River",8333,3
+1999,"Monterey Bay",1926,86
+1999,"Morro Bay",1441,3
+1999,"Northern California - Southern Oregon",19466,-999
+1999,"San Francisco - Russian River",9011,0
+2000,"Monterey Bay",1948,22
+2000,"Morro Bay",1590,7
+2000,"Northern California - Southern Oregon",19008,-999
+2000,"San Francisco - Russian River",9146,0
+2001,"Monterey Bay",2061,4
+2001,"Morro Bay",1765,10
+2001,"Northern California - Southern Oregon",20611,-999
+2001,"San Francisco - Russian River",8672,0
+2002,"Monterey Bay",2151,14
+2002,"Morro Bay",1964,2
+2002,"Northern California - Southern Oregon",18779,-999
+2002,"San Francisco - Russian River",11247,0
+2003,"Monterey Bay",2241,0
+2003,"Morro Bay",2089,1
+2003,"Northern California - Southern Oregon",19237,-999
+2003,"San Francisco - Russian River",11721,0
+2004,"Monterey Bay",2355,0
+2004,"Morro Bay",2238,0
+2004,"Northern California - Southern Oregon",19466,-999
+2004,"San Francisco - Russian River",13076,0
+2005,"Monterey Bay",2422,0
+2005,"Morro Bay",2413,0
+2005,"Northern California - Southern Oregon",19466,-999
+2005,"San Francisco - Russian River",14363,0
+2006,"Monterey Bay",2489,0
+2006,"Morro Bay",2587,0
+2006,"Northern California - Southern Oregon",21527,-999
+2006,"San Francisco - Russian River",10434,0
+2007,"Monterey Bay",2739,0
+2007,"Morro Bay",2837,0
+2007,"Northern California - Southern Oregon",20153,-999
+2007,"San Francisco - Russian River",7995,3
+2008,"Monterey Bay",2716,0
+2008,"Morro Bay",3087,1
+2008,"Northern California - Southern Oregon",14885,-999
+2008,"San Francisco - Russian River",8875,0
+2009,"Monterey Bay",2966,0
+2009,"Morro Bay",3437,0
+2009,"Northern California - Southern Oregon",18550,-999
+2009,"San Francisco - Russian River",8875,0
+2010,"Monterey Bay",3147,0
+2010,"Morro Bay",3737,0
+2010,"Northern California - Southern Oregon",19237,-999
+2010,"San Francisco - Russian River",8333,0
+2011,"Monterey Bay",3260,1
+2011,"Morro Bay",4087,0
+2011,"Northern California - Southern Oregon",22672,-999
+2011,"San Francisco - Russian River",8198,0
+2012,"Monterey Bay",3419,0
+2012,"Morro Bay",-999,1
+2012,"Northern California - Southern Oregon",18779,-999
+2012,"San Francisco - Russian River",7249,0
+2013,"Monterey Bay",3623,0
+2013,"Morro Bay",-999,4
+2013,"Northern California - Southern Oregon",15802,-999
+2013,"San Francisco - Russian River",6843,1
+2014,"Monterey Bay",-999,0
+2014,"Morro Bay",-999,1
+2014,"Northern California - Southern Oregon",13511,-999
+2014,"San Francisco - Russian River",7859,1
+2015,"Monterey Bay",-999,1
+2015,"Morro Bay",-999,1
+2015,"Northern California - Southern Oregon",12824,-999
+2015,"San Francisco - Russian River",7791,1
+2016,"Monterey Bay",-999,0
+2016,"Morro Bay",-999,2
+2016,"Northern California - Southern Oregon",12137,-999
+2016,"San Francisco - Russian River",7791,0
+2017,"Monterey Bay",-999,0
+2017,"Morro Bay",-999,0
+2017,"San Francisco - Russian River",7995,0
+2018,"Monterey Bay",-999,0
+2018,"Morro Bay",-999,0
+2018,"San Francisco - Russian River",-999,1
+2019,"Monterey Bay",-999,0
+2019,"Morro Bay",-999,0
+2019,"San Francisco - Russian River",-999,0
+2020,"Monterey Bay",-999,0
+2020,"Morro Bay",-999,0
+2020,"San Francisco - Russian River",-999,0
+2021,"Monterey Bay",-999,0
+2021,"Morro Bay",-999,0
+2021,"San Francisco - Russian River",-999,1
