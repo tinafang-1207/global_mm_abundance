@@ -7,17 +7,28 @@ library(tidyverse)
 
 ### read in data
 original_df <- read.csv("data/clean_data/ca_sealion_input_df.csv")
-posterior_draw <- read.csv("data/exp_data/posterior_draw_2k.csv")
-output <- read.csv("data/exp_data/output_2k.csv")
+posterior_draw <- read.csv("data/exp_data/posterior_draw_ca_sealion_0.6k.csv")
+output <- read.csv("data/exp_data/output_ca_sealion_0.6k.csv")
 
 ### prior
 
 # r
-r1 <- 0.01
-r2 <- 0.25
-x <- seq(0,3, by = 0.01)
-y <- dlnorm(x, meanlog=log((r1+r2)/2), sdlog=log( ((r1+r2)/2) - log(r1)) /2 )
-plot(y ~ x, type="line")
+
+# Define bounds
+lower <- 0.01
+upper <- 0.2
+
+# Generate x values and corresponding densities
+x_vals <- seq(lower - 0.01, upper + 0.01, length.out = 500)
+y_vals <- dunif(x_vals, min = lower, max = upper)
+
+# Plot using plot()
+plot(x_vals, y_vals, type = "l",
+     xlab = "x", ylab = "Density",
+     main = "Uniform(0.01, 0.2)",
+     lwd = 2, col = "blue")
+
+
 # 
 # # k
 k1<- 306220
@@ -42,7 +53,7 @@ y<-invgamma::dinvgamma(x, 4, 0.01)
 plot(y~x)
 
 # shape parameter m
-x<-seq(-1,1,length.out = 1000)
+x<-seq(-1,5,length.out = 1000)
 y <-sn::dsn(x, xi = -0.5, omega = 1, alpha = 10)
 plot(y~x)
 
@@ -78,8 +89,8 @@ plot(y~x_q1)
 
 ### posterior
 posterior_draw_clean <- posterior_draw%>%
-  select(r_1, k_1, P_initial_1, sigma_sq_1, tau_sq_1, m_1, MNPL) %>%
-  gather(key = "Parameter", value = "Value", r_1, k_1, P_initial_1, sigma_sq_1, tau_sq_1, m_1, MNPL)
+  select(r_1, k_1, P_initial_1, sigma_sq_1) %>%
+  gather(key = "Parameter", value = "Value", r_1, k_1, P_initial_1, sigma_sq_1)
 
 posterior_k <- posterior_draw_clean %>%
   group_by(Parameter) %>%
@@ -104,7 +115,7 @@ p_posterior
 output_clean <- output %>%
   rename(est_variables = X) %>%
   filter(str_detect(est_variables, "N_med")) %>%
-  mutate(est_variables = 1975:2014) %>%
+  mutate(est_variables = 1981:2014) %>%
   gather(key = "estimation_type", value = "estimation", mean, se_mean, sd, X2.5., X25., X50.,X75.,X97.5., n_eff, Rhat) %>%
   mutate(est_variables = as.numeric(est_variables))
 

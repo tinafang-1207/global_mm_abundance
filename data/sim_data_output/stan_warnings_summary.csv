@@ -1,0 +1,37 @@
+"warmup","iterations","message"
+1000,2000,"There were 5 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+2000,3000,"There were 5 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+3000,4000,"There were 17 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+4000,5000,"There were 4 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+5000,6000,"There were 4 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+6000,7000,"There were 2 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+7000,8000,"There were 1 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+8000,9000,"There were 3 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
+9000,10000,"There were 10 divergent transitions after warmup. See
+https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
+to find out why this is a problem and how to eliminate them. | Examine the pairs() plot to diagnose sampling problems
+"
