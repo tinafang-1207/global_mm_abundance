@@ -14,6 +14,15 @@ individual <- readRDS("/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confiden
 # IWC summary catch data
 summary <- readRDS("/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confidential/iwc_data/processed/summary_catch_clean.Rds")
 
+
+summary_trial <- summary %>%
+  filter(ocean == "North Pacific") %>%
+  filter(area %in% c("Br.Columbia", "USA W coast", "Mexico")) %>%
+  filter(operation_type == "Commercial") %>%
+  group_by(year) %>%
+  summarize(hbk_total = sum(hbk))
+
+
 # world map
 world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 usa <- rnaturalearth::ne_states(country = "United States of America", returnclass = "sf")
@@ -52,19 +61,20 @@ ind_feeding <- ind_filtered %>%
   filter(catching_season == "Feeding") %>%
   #filter(area == "USA W coast"|area == "Br.Columbia") %>%
   # only keep the catch location with latitude less than 49N - keep it consistent with the survey region
-  filter(lat_dd <= 49) %>%
+  filter(lat_dd <= 50) %>%
   group_by(catch_year, exp_id_sum) %>%
-  mutate(total_catch = n()) %>%
+  summarize(total_catch = n(), lat_dd = first(lat_dd), long_dd = first(long_dd)) %>%
   ungroup()
 
 
 ind_breeding <- ind_filtered %>%
   mutate(exp_id_sum = as.factor(exp_id_sum)) %>%
   filter(catching_season == "Breeding") %>%
+  filter(lat_dd <= 50) %>%
   # should the US West coast be kept?
   # filter(area == "USA W coast"|area == "Mexico") %>%
   group_by(catch_year, exp_id_sum, area) %>%
-  mutate(total_catch = n()) %>%
+  summarize(total_catch = n(), lat_dd = first(lat_dd), long_dd = first(long_dd)) %>%
   ungroup()
 
 # There were whales caught in Br.Columbia during breeding season and whale caught in Mexico during feeding season
@@ -73,15 +83,14 @@ ind_breeding <- ind_filtered %>%
 ind_feeding_sum <- ind_filtered %>%
   mutate(exp_id_sum = as.factor(exp_id_sum)) %>%
   filter(catching_season == "Feeding") %>%
-  # only keep the catch location with latitude less than 49N - keep it consistent with the survey region
-  filter(lat_dd <= 49) %>%
+  filter(lat_dd <= 50) %>%
   group_by(catch_year) %>%
   summarize(total_catch = n())
 
-ind_breeding_sum <- ind_breeding %>%
+ind_breeding_sum <- ind_filtered%>%
   mutate(exp_id_sum = as.factor(exp_id_sum)) %>%
   filter(catching_season == "Breeding") %>%
-  # should the US West coast be kept?
+  filter(lat_dd <= 50) %>%
   group_by(catch_year) %>%
   summarize(total_catch = n())
 
@@ -114,10 +123,10 @@ g_feeding <- ggplot(ind_feeding, aes(x = long_dd, y = lat_dd)) +
   geom_sf(data = usa, fill = "grey85", col = "white", linewidth=0.01, inherit.aes = F) +
   geom_sf(data = mexico, fill = "grey85", col = "white", linewidth=0.01, inherit.aes = F) +
   geom_sf(data = canada, fill = "grey85", col = "white", linewidth=0.01, inherit.aes = F) +
-  geom_point(aes(size = total_catch, color = exp_id_sum), alpha = 0.3) +
-  coord_sf(xlim = c(-130, -105), ylim = c(20, 49)) +
+  geom_point(aes(size = total_catch, color = exp_id_sum), alpha = 0.7) +
+  coord_sf(xlim = c(-130, -105), ylim = c(20, 50)) +
   scale_x_continuous(breaks=seq(-130, -110, 5)) +
-  scale_y_continuous(breaks=seq(20, 49, 5)) +
+  scale_y_continuous(breaks=seq(20, 50, 5)) +
   labs(x = NULL, y = NULL) +
   facet_wrap(~ catch_year, ncol = 10) +
   guides(color = "none") + 
@@ -131,7 +140,7 @@ g_breeding <- ggplot(ind_breeding, aes(x = long_dd, y = lat_dd)) +
   geom_sf(data = usa, fill = "grey85", col = "white", linewidth=0.01, inherit.aes = F) +
   geom_sf(data = mexico, fill = "grey85", col = "white", linewidth=0.01, inherit.aes = F) +
   geom_sf(data = canada, fill = "grey85", col = "white", linewidth=0.01, inherit.aes = F) +
-  geom_point(aes(size = total_catch, color = exp_id_sum), alpha = 0.3) +
+  geom_point(aes(size = total_catch, color = exp_id_sum), alpha = 0.7) +
   coord_sf(xlim = c(-130, -105), ylim = c(20, 49)) +
   scale_x_continuous(breaks=seq(-130, -110, 5)) +
   scale_y_continuous(breaks=seq(20, 49, 5)) +
@@ -148,6 +157,7 @@ plotdir <- "data/confidential/iwc_catch_figure"
 
 ggsave(g_feeding, filename=file.path(plotdir, "hbk_feeding.png"), 
               width=8, height=5, units="in", dpi=600)
+
 ggsave(g_breeding, filename=file.path(plotdir, "hbk_breeding.png"), 
        width=8, height=5, units="in", dpi=600)
 

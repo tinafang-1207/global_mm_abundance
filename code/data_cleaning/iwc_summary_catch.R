@@ -11,66 +11,7 @@ library(sf)
 catch_orig <- read_excel("/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confidential/iwc_data/original/SummaryDatabaseV7.1/All-V7-2-Jun-2023.xlsx", sheet = "ExtraInfo") %>%
   janitor::clean_names()
 
-area_orig <- read_excel("/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confidential/iwc_data/original/SummaryDatabaseV7.1/All-V7-2-Jun-2023.xlsx", sheet = "Areas") %>%
-  janitor::clean_names()
-
-world <- rnaturalearth::ne_countries(returnclass = "sf")
-
 # expedition_orig <- read_excel("/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confidential/iwc_data/SummaryDatabaseV7.1/All-V7-2-Jun-2023.xlsx", sheet = "Expeditions")
-
-### clean data ###
-
-# expedition area
-area <- area_orig %>%
-  rename(ocean = oc,
-         min_lat = min_4,
-         max_lat = max_5,
-         min_lon = min_6,
-         max_lon = max_7) %>%
-  mutate(area_note = x9) %>%
-  select(-code, -x8, -x9)
-
-# convert the Expedition area to a sf object
-area_clean <- area %>%
-  separate(min_lat, into = c("min_lat_val", "min_lat_dir"), sep = "(?<=\\d)(?=\\D)") %>%
-  separate(max_lat, into = c("max_lat_val", "max_lat_dir"), sep = "(?<=\\d)(?=\\D)") %>%
-  separate(min_lon, into = c("min_lon_val", "min_lon_dir"), sep = "(?<=\\d)(?=\\D)") %>%
-  separate(max_lon, into = c("max_lon_val", "max_lon_dir"), sep = "(?<=\\d)(?=\\D)") %>%
-  mutate(across(ends_with("_val"), as.numeric)) %>%
-  mutate(min_lon_val = ifelse(min_lon_dir == "E",min_lon_val, -min_lon_val),
-         max_lon_val = ifelse(max_lon_dir == "E", max_lon_val, -max_lon_val),
-         min_lat_val = ifelse(min_lat_dir == "N", min_lat_val, -min_lat_val),
-         max_lat_val = ifelse(max_lat_dir == "N", max_lat_val, -max_lat_val)) %>%
-  select(-max_lat_dir, -min_lat_dir, -max_lon_dir, -min_lon_dir) %>%
-  rename(min_lat = min_lat_val,
-         max_lat = max_lat_val,
-         min_lon = min_lon_val,
-         max_lon = max_lon_val)
-
-
-areas_clean_sf <-  do.call(
-  rbind,
-  lapply(1:nrow(area_clean), function(i) {
-    with(area_clean[i, ], {
-      st_as_sf(
-        data.frame(area = area, ocean = ocean),
-        geometry = st_sfc(
-          st_polygon(list(matrix(
-            c(min_lon, min_lat,
-              min_lon, max_lat,
-              max_lon, max_lat,
-              max_lon, min_lat,
-              min_lon, min_lat),
-            ncol = 2, byrow = TRUE
-          )))
-        ),
-        crs = 4326
-      )
-    })
-  })
-)
-  
-
 
 # clean catch data
 data <- catch_orig %>%
@@ -121,7 +62,6 @@ data <- catch_orig %>%
                                     operation_type == "Cr"~"Commercial under reservation"))
 
 saveRDS(data, file = "/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confidential/iwc_data/processed/summary_catch_clean.Rds")
-saveRDS(areas_clean_sf, file = "/Users/yutianfang/Dropbox/ca_set_gillnet_bycatch/confidential/iwc_data/processed/catch_area_sf.Rds")
 
 
 
