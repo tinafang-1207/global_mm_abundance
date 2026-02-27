@@ -1,108 +1,25 @@
 
+### clean working environment ###
+rm(list = ls())
+
 ### import library
 library(tidyverse)
 library(rstan)
 library(parallel)
 
+### for parallelization
+options(mc.cores = parallel::detectCores())
 
 ### Compile the stan model
-SPM_stan = stan_model(file = "model/no_est_catch_simulation.stan")
-
-# Simulate the data
-set.seed(123)
-
-# -------------------------
-# Original species parameters (Species 1)
-# -------------------------
-N <- 30  # time steps
-
-r_true_1 <- 0.06
-k_true_1 <- 1000
-P0_true_1 <- 1.0
-z_true_1 <- 2.39
-sigma_true_1 <- 0.1
-Catch <- seq(5, 80, length.out = N)
-
-# -------------------------
-# Additional species parameters (Species 2 & 3)
-# (You can edit these as needed)
-# -------------------------
-r_true_2 <- 0.12
-k_true_2 <- 1500
-P0_true_2 <- 1
-z_true_2 <- 16.28
-sigma_true_2 <- 0.15
-
-r_true_3 <- 0.04
-k_true_3 <- 800
-P0_true_3 <- 1
-z_true_3 <- 14.36
-sigma_true_3 <- 0.12
-
-# Put all species parameters into a list for cleaner looping
-species_params <- list(
-  list(name="Species_1", r=r_true_1, k=k_true_1, P0=P0_true_1, z=z_true_1, sigma=sigma_true_1),
-  list(name="Species_2", r=r_true_2, k=k_true_2, P0=P0_true_2, z=z_true_2, sigma=sigma_true_2),
-  list(name="Species_3", r=r_true_3, k=k_true_3, P0=P0_true_3, z=z_true_3, sigma=sigma_true_3)
-)
-
-# -------------------------
-# Simulation Loop for All Species
-# -------------------------
-sim_all <- list()
-year <- seq(1900, by = 1, length.out = N)
-
-for (sp in species_params) {
-  
-  # True abundance trajectory
-  N_true <- numeric(N)
-  N_true[1] <- sp$P0 * sp$k
-  
-  for (t in 2:N) {
-    N_true[t] <- max(
-      N_true[t-1] + sp$r * N_true[t-1] * (1 - (N_true[t-1] / sp$k)^sp$z) - Catch[t-1],
-      0.0001
-    )
-  }
-  
-  # Observed abundance
-  Abundance <- rlnorm(N, log(N_true), sp$sigma)
-  
-  # Build dataframe for this species
-  df <- data.frame(
-    species = sp$name,
-    year = year,
-    abundance = Abundance,
-    catch = Catch,
-    sigma = rep(sp$sigma, N),
-    z_true = rep(sp$z, N)
-  )
-  
-  sim_all[[sp$name]] <- df
-}
-
-# -------------------------
-# Combine into one dataframe
-# -------------------------
-sim_data <- do.call(rbind, sim_all)
-rownames(sim_data) <- NULL 
-
-# View output
-head(sim_data)
-
-# --- Export to CSV ---
-write.csv(sim_data, file = "data/sim_data/simulated_population_data.csv", row.names = FALSE)
-
-###################################################################################################
-# rotate the model 
+SPM_stan = stan_model(file = "model/vary_p_no_temp.stan")
 
 # ================================
 # Species List
 # ================================
-species_list <- c("Species_1", "Species_2", "Species_3")
+species_list <- c("California_sea_lion")
 
 # Root output directory
-root_output <- "data/sim_data_output"
+root_output <- "data/confidential/stan_output"
 dir.create(root_output, showWarnings = FALSE, recursive = TRUE)
 
 # ================================================================
@@ -115,11 +32,6 @@ run_species <- function(sp_name) {
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   
   # ---- 0.1 Start log file ----
-  logfile <- file.path(output_dir, paste0(sp_name, "_log.txt"))
-  con <- file(logfile, open = "wt")      # open connection
-  sink(con, append = TRUE)
-  sink(con, append = TRUE, type = "message")
-  
   cat("\n=====================================\n")
   cat("Starting species:", sp_name, "\n")
   cat("PID:", Sys.getpid(), "\n")
@@ -127,33 +39,34 @@ run_species <- function(sp_name) {
   flush.console()
   
   # ---- 1. Load DATA ----
-  all_data <- read.csv("data/sim_data/simulated_population_data.csv")
-  data <- subset(all_data, species == sp_name)
+  all_data <- read.csv("data/confidential/input_data/input_final.csv")
+  input_df <- subset(all_data, species == sp_name)
   
-  N <- nrow(data)
-  Catch <- data$catch
-  Abundance <- data$abundance
-  sigma_true <- rep(data$sigma[1], N)
-  z_true <- data$z_true[1]
+  min_year = 1975
+  max_year = 2014
+  abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
+  catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$catch
+  sigma_true <-input_df[input_df$year>=min_year&input_df$year<=max_year,]$sigma
+  z_true <- 3.9
   
   # ---- 2. Stan Data ----
   stan_data <- list(
-    N_1 = N,
-    Catch_1 = Catch,
-    Abundance_1 = Abundance,
+    N_1 = max_year-min_year+1,
+    Abundance_1 = abundance,
+    Catch_1 = catch,
     low_r = 0.01,
-    high_r = 0.12,
+    high_r = 0.2,
+    low_k = 0.8*max(abundance),
+    high_k = 3*max(abundance),
     sigma_1 = sigma_true,
-    low_k = 0.8 * max(Abundance),
-    high_k = 3 * max(Abundance),
-    z_1 = z_true
+    z_1=z_true
   )
   
   # ---- 3. Warmup Settings ----
-  warmup_values <- seq(1000, 9000, by = 1000)
-  samples_per_chain <- 1000
+  warmup_values <- c(50000, 100000, 150000, 300000, 500000, 1000000)
+  samples_per_chain <- 50000
   chains <- 3
-  thin <- 1
+  thin <- 10
   
   # ---- 4. Warning log ----
   warning_log <- data.frame(
@@ -197,7 +110,7 @@ run_species <- function(sp_name) {
             iter = iter,
             warmup = w,
             thin = thin,
-            refresh = 0,
+            refresh = 200,
             control = list(adapt_delta = 0.99, max_treedepth = 20)
           ),
           warning = function(war) {
@@ -265,22 +178,13 @@ run_species <- function(sp_name) {
   cat("\n🏁 Finished species:", sp_name, "\n")
   flush.console()
   
-  # ---- Close log ----
-  sink(type = "message")
-  sink()
-  
   return(TRUE)
 }
 
 # ================================================================
 # RUN ALL SPECIES IN PARALLEL
 # ================================================================
-mclapply(species_list, run_species, mc.cores = length(species_list))
 
-
-
-
-
-
-
-
+for (sp in species_list) {
+  run_species(sp)
+}

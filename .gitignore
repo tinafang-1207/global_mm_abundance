@@ -5,4 +5,10 @@
 
 # Ignore
 **/.DS_Store
-data/confidential/
+
+# Ignore raw/simulated/model outputs
+data/
+*.rds
+*.csv
+*.tsv
+*.nc
