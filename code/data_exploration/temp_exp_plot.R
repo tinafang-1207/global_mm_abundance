@@ -66,7 +66,7 @@ g_temp <- ggplot(output_temp_all, aes(y = species, x = mean, color = sign)) +
   # Mean point
   geom_point(size = 3) +
   # Species labels next to points
-  geom_text(aes(label = species), hjust = ifelse(output_temp_all$mean >= 0, -0.2, 1.2), vjust = 2, size = 2.5, show.legend = FALSE) +
+  geom_text(aes(label = species), hjust = ifelse(output_temp_all$mean >= 0, -0.2, 0.8), vjust = 2, size = 2.5, show.legend = FALSE) +
   # Color scale
   scale_color_manual(values = c("positive" = "blue", "negative" = "red")) +
   labs(x = "Impact of temperature", y = NULL) +
