@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 /Users/cfree/Dropbox/Chris/UCSB/projects/marine_mammals/global_mm_abundance/model/ca_sealion_exp.stan="DE1591DB"
 =======
 /Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/Luoliang_model/code/SPM.stan="9A79F755"
@@ -18,3 +19,27 @@
 /Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/time_series_length_figure.R="980C9DE4"
 /Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/model/ca_sealion_exp.stan="5E59B85A"
 >>>>>>> d10b3101d87940f576e64e1bb27151449353479f
+=======
+/Users/yutianfang/Downloads/README.md="160992DD"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/Luoliang_model/code/SPM.stan="9A79F755"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/Luoliang_model/code/SPM_STAN_R_MODEL.R="9AA8A0A8"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/Luoliang_model/code/SPM_yutian.stan="EC3FBE99"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/.gitignore="BD40963A"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_cleaning/input_final.R="4E7F35D6"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/ENP_bluewhale_plot_exp.R="48B39C47"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/ENP_graywhale_plot_exp.R="FC1EF840"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/Simulation.R="ADF8B2C9"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/Simulation_rotate.R="6A2F45E5"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/Simulation_rotate_temp.R="94BE3DFD"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/old code/ca_harbor_porpoise_exp.R="5A02C0F9"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/old code/ca_harbor_porpoise_plot_exp.R="2D714E2E"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/pinniped_plot_exp.R="BFC864F6"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/temp_exp_plot.R="322CE3EE"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/vary_p_no_temp.R="E1DCD7B7"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/vary_p_temp.R="8112AA6A"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/code/data_exploration/wc_humpback_plot_exp.R="6073D2E4"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/model/fit_model_stan.R="2FACCE4E"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/model/no_est_catch_simulation_w_prior.stan="FA8C2CBF"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/model/vary_p_temp.stan="17A28B07"
+/Users/yutianfang/Library/CloudStorage/OneDrive-Personal/MM PhD Research/global_mm_trend/model/vary_p_temp_sep_catch.stan="B8E34C45"
+>>>>>>> f06c4d2e113d9e8e6a535554c5abc3b8bb4a7c50
