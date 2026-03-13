@@ -1,4 +1,6 @@
 
+# ADD Z-VALUE
+
 ### read in library ###
 library(tidyverse)
 
@@ -11,6 +13,7 @@ gray_abd <- read.csv("data/confidential/input_data/abundance/ENP_gray_abundance.
 ca_sealion_abd <- read.csv("data/confidential/input_data/abundance/CA_sealion_abundance.csv", na.strings = "/")
 ca_seal_abd <- read.csv("data/confidential/input_data/abundance/CA_Harbor_seal_abundance.csv", na.strings = "/")
 elephant_seal_abd <- read.csv("data/confidential/input_data/abundance/CA_Northern_elephant_seal_abundance.csv", na.strings = "/")
+or_seal_abd <- read.csv("data/confidential/input_data/abundance/OR_Harbor_seal_abundance.csv", na.strings = "/")
 
 
 
@@ -22,28 +25,21 @@ blue_catch <- read.csv("data/confidential/input_data/catch/ENP_blue_whale_catch.
 ca_gillnet_catch_est <- readRDS("data/confidential/input_data/catch/1981_2021_bycatch_estimate_ratio_stratified_w_historical.Rds")
 mortality_obs <- readRDS("data/confidential/input_data/catch/2007_2022_injury_mortality_data.Rds")
 ca_drift_gillnet_catch <- read.csv("data/confidential/input_data/catch/CA_drift_gillnet_bycatch.csv", na.strings = "/")
+or_harbor_seal_catch <- read.csv("data/confidential/input_data/catch/OR_Harbor_seal_catch.csv", na.strings = "/")
 
-# Temp-PDO Index
-temp <- read.csv("data/confidential/input_data/PDO_temp.csv", na.strings = "/")
+# Temp-PDO Index & habitat_temp
+pdo_scale <- read.csv("data/habitat_gis/pdo_scaled.csv") %>%
+  select(year, temp_scaled) %>%
+  rename(temp_pdo = temp_scaled)
+
+habitat_scale <- read.csv("data/habitat_gis/sst_total_by_species_scaled.csv") %>%
+  select(year, species, temp_scaled) %>%
+  rename(temp_habitat = temp_scaled) %>%
+  mutate(species = ifelse(species == "California_harbor_seal", "CA_Harbor_seal", species))
+  
 
 
 ############################## Clean data ##################################
-
-# scale temperature
-temp_clean <- temp %>% 
-  select(Year, average) %>%
-  filter(Year < 2025) %>%
-  rename(
-    year = Year,
-    temp_raw = average
-  ) %>%
-  mutate(
-    temp_mean = as.numeric(scale(temp_raw, center = TRUE, scale = FALSE)),
-    temp_scaled = as.numeric(scale(temp_raw, center = TRUE, scale = TRUE))
-  )
-
-temp_clean_final <- temp_clean %>%
-  select(year, temp_scaled)
 
 # clean abundance
 
@@ -105,6 +101,18 @@ abd_elephant_seal <- elephant_seal_abd %>%
   mutate(sigma = sqrt(log(1+cv^2))) %>%
   mutate(sigma = round(sigma,2)) %>%
   select(species, year, abundance, sigma)
+
+# Oregon harbor seal
+abd_or_seal <- or_seal_abd %>%
+  select(species, year, abundance_corrected, lcl, hcl) %>%
+  rename(abundance = abundance_corrected) %>%
+  mutate(standard_error = (hcl-lcl)/(2*1.96)) %>%
+  mutate(cv = standard_error/abundance) %>%
+  # derive sigma
+  mutate(sigma = sqrt(log(1+cv^2))) %>%
+  mutate(sigma = round(sigma,2)) %>%
+  select(species, year, abundance, sigma)
+  
 
 # catch
 
@@ -195,6 +203,10 @@ elephant_seal_catch_clean <- elephant_seal_bycatch_est %>%
   mutate(catch = catch_obs + catch_est + catch_drift) %>%
   select(year, catch)
 
+or_seal_catch_clean <- or_harbor_seal_catch %>%
+  select(year, catch_total) %>%
+  rename(catch = catch_total)
+
 
 
 # create input data
@@ -206,8 +218,9 @@ hbk_input_final <- full_join(hbk_catch_clean, abd_hbk, by = "year") %>%
   mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
   mutate(species = "Humpback_whale") %>%
   # join the temp data
-  left_join(temp_clean_final, by = "year") %>%
-  select(species, year, abundance, catch, sigma, temp_scaled)
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
 
 gray_input_final <- full_join(gray_catch_clean, abd_gray, by = "year") %>%
   complete(year = min(year):max(year)) %>%
@@ -216,8 +229,9 @@ gray_input_final <- full_join(gray_catch_clean, abd_gray, by = "year") %>%
   mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
   mutate(species = "Gray_whale") %>%
   # join the temp data
-  left_join(temp_clean_final, by = "year") %>%
-  select(species, year, abundance, catch, sigma, temp_scaled)
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
 
 blue_input_final <- full_join(blue_catch_clean, abd_blue, by = "year") %>%
   complete(year = min(year):max(year)) %>%
@@ -226,8 +240,9 @@ blue_input_final <- full_join(blue_catch_clean, abd_blue, by = "year") %>%
   mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
   mutate(species = "Blue_whale") %>%
   # join the temp data
-  left_join(temp_clean_final, by = "year") %>%
-  select(species, year, abundance, catch, sigma, temp_scaled)
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
 
 sealion_input_final <- full_join(sealion_catch_clean, abd_sealion, by = "year") %>%
   complete(year = min(year):max(year)) %>%
@@ -236,8 +251,9 @@ sealion_input_final <- full_join(sealion_catch_clean, abd_sealion, by = "year") 
   mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
   mutate(species = "California_sea_lion") %>%
   # join the temp data
-  left_join(temp_clean_final, by = "year") %>%
-  select(species, year, abundance, catch, sigma, temp_scaled)
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
 
 ca_seal_input_final <- full_join(ca_seal_catch_clean, abd_ca_seal, by = "year") %>%
   complete(year = min(year):max(year)) %>%
@@ -246,8 +262,9 @@ ca_seal_input_final <- full_join(ca_seal_catch_clean, abd_ca_seal, by = "year") 
   mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
   mutate(species = "CA_Harbor_seal") %>%
   # join the temp data
-  left_join(temp_clean_final, by = "year") %>%
-  select(species, year, abundance, catch, sigma, temp_scaled)
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
 
 elephant_seal_input_final <- full_join(elephant_seal_catch_clean, abd_elephant_seal, by = "year") %>%
   complete(year = min(year):max(year)) %>%
@@ -256,8 +273,20 @@ elephant_seal_input_final <- full_join(elephant_seal_catch_clean, abd_elephant_s
   mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
   mutate(species = "Northern_elephant_seal") %>%
   # join the temp data
-  left_join(temp_clean_final, by = "year") %>%
-  select(species, year, abundance, catch, sigma, temp_scaled)
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
+
+or_seal_input_final <- full_join(or_seal_catch_clean, abd_or_seal, by = "year") %>%
+  complete(year = min(year):max(year)) %>%
+  mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
+  mutate(abundance = ifelse(is.na(abundance), -999, abundance)) %>%
+  mutate(sigma = ifelse(is.na(sigma), 1, sigma)) %>%
+  mutate(species = "OR_Harbor_seal") %>%
+  # join the temp data
+  left_join(pdo_scale, by = "year") %>%
+  left_join(habitat_scale, by = c("species", "year")) %>%
+  select(species, year, abundance, catch, sigma, temp_pdo, temp_habitat)
 
 
 input_final <- bind_rows(hbk_input_final, 
@@ -265,7 +294,8 @@ input_final <- bind_rows(hbk_input_final,
                          blue_input_final, 
                          sealion_input_final, 
                          ca_seal_input_final,
-                         elephant_seal_input_final)
+                         elephant_seal_input_final,
+                         or_seal_input_final)
 
 # save data
 

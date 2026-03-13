@@ -27,7 +27,7 @@ pinniped_orig <- readRDS("data/habitat_gis/cwhr_ranges_simplified.Rds")
 # Sealion: Primarily breed in California but their distribution seems throughout the entire U.S.West coast
 # Northern elephant seal: Primarily breed in California in the winter months (December, January, February, March)
 #(should filter to winter months?)
-# California harbor seal: Nothing to notice, they're California stock
+# California harbor seal: Nothing to notice, they're California stock and non-migratory
 
 # convert sst_df back to raster
 # convert dataframe to SpatRaster
@@ -121,9 +121,11 @@ ggplot() +
 ca_sealion_orig <- pinniped_orig %>%
   filter(comm_name == "California sea lion")
 
+# Harbor seal (CA)
 ca_harbor_seal_orig <- pinniped_orig %>%
   filter(comm_name == "Harbor seal")
 
+# Northern elephant seal
 northern_elephant_seal_orig <- pinniped_orig %>%
   filter(comm_name == "Northern elephant seal")
 
@@ -313,7 +315,69 @@ saveRDS(sst_rast, "data/habitat_gis/sst_rast.rds")
 
 write.csv(sst_total, "data/habitat_gis/sst_total_by_species.csv", row.names = FALSE)
 
+#####################################################################################
 
+# Check the temperature data
+
+temp_orig <- read.csv("data/habitat_gis/sst_total_by_species.csv")
+pdo <- read.csv("data/habitat_gis/PDO_temp.csv")
+
+temp_orig_scaled <- temp_orig %>%
+  filter(year < 2026) %>%
+  group_by(species) %>%
+  mutate(temp_scaled = as.numeric(scale(annual_sst_mean, center = TRUE, scale = TRUE))) %>%
+  ungroup() %>%
+  mutate(temp_state = ifelse(temp_scaled > 0, "warm", "cold"))
+
+pdo_scaled <- pdo %>% 
+  select(Year, average) %>%
+  filter(Year < 2025) %>%
+  rename(
+    year = Year,
+    temp_raw = average
+  ) %>%
+  mutate(temp_raw = as.numeric(temp_raw)) %>%
+  mutate(
+    temp_scaled = as.numeric(scale(temp_raw, center = TRUE, scale = TRUE))
+  ) %>%
+  mutate(temp_state = ifelse(temp_scaled > 0, "warm", "cold"))
+
+temp_habitat <- ggplot(temp_orig_scaled, aes(x = year, y = temp_scaled)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_line(linewidth = 0.5, color = "grey") +
+  geom_point(aes(color = temp_state), size = 0.5) +
+  scale_color_manual(
+    values = c("warm" = "red", "cold" = "blue"),
+    guide = "none"
+  ) +
+  scale_x_continuous(breaks = seq(1850, 2025, by = 50)) +
+  facet_wrap(.~species) +
+  theme_bw()
+
+temp_pdo <- ggplot(pdo_clean, aes(x = year, y = temp_scaled)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_line(linewidth = 0.5, color = "grey") +
+  geom_point(aes(color = temp_state), size = 0.5) +
+  scale_color_manual(
+    values = c("warm" = "red", "cold" = "blue"),
+    guide = "none"
+  ) +
+  scale_x_continuous(breaks = seq(1854, 2024, by = 50)) +
+  theme_bw()
+
+# save figure
+
+plot_dir <- "figures"
+
+ggsave(temp_habitat, filename=file.path(plot_dir, "temp_habitat_scaled.png"), 
+       width=5, height=4, units="in", dpi=600)
+
+ggsave(temp_pdo, filename=file.path(plot_dir, "temp_pdo_scaled.png"), 
+       width=5, height=4, units="in", dpi=600)
+
+# save the scaled temp data
+write.csv(temp_orig_scaled, "data/habitat_gis/sst_total_by_species_scaled.csv")
+write.csv(pdo_clean, "data/habitat_gis/pdo_scaled.csv")
 
 
 
