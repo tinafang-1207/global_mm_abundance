@@ -42,12 +42,12 @@ run_species <- function(sp_name) {
   all_data <- read.csv("data/confidential/input_data/input_final.csv")
   input_df <- subset(all_data, species == sp_name)
   
-  min_year = 1975
-  max_year = 2014
+  min_year <- min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
+  max_year <- max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
   abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
   catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$catch
   sigma_true <-input_df[input_df$year>=min_year&input_df$year<=max_year,]$sigma
-  z_true <- 3.9
+  z_true <- 3.93
   
   # ---- 2. Stan Data ----
   stan_data <- list(
@@ -188,3 +188,5 @@ run_species <- function(sp_name) {
 for (sp in species_list) {
   run_species(sp)
 }
+
+

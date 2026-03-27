@@ -12,8 +12,12 @@ output_hseal <- read.csv(file.path(input_dir, "CA_Harbor_seal/summary_warmup_500
 output_eseal <- read.csv(file.path(input_dir, "Northern_elephant_seal/summary_warmup_50000_iter_1e+05.csv"))
 
 fit_sealion <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05.rds"))
+fit_sealion_temp <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp.rds"))
+fit_sealion_habitat <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp.rds"))
 fit_hseal <- readRDS(file.path(input_dir, "CA_Harbor_seal/fit_warmup_50000_iter_1e+05.rds"))
+fit_hseal_temp <- readRDS(file.path(input_dir,"CA_Harbor_seal/fit_warmup_50000_iter_1e+05_temp.rds"))
 fit_eseal <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05.rds"))
+fit_eseal_temp <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp.rds"))
 
 original_sealion <- read.csv("data/confidential/input_data/input_final.csv") %>%
   filter(species == "California_sea_lion")
@@ -24,8 +28,70 @@ original_eseal <- read.csv("data/confidential/input_data/input_final.csv") %>%
 
 # check pair plots
 pairs(fit_sealion, pars = c("r_1","k_1", "P_initial_1"))
+pairs(fit_sealion_temp, pars = c("r_1", "k_1", "P_initial_1", "impact_E_1"))
 pairs(fit_hseal, pars = c("r_1","k_1", "P_initial_1"))
+pairs(fit_hseal_temp, pars = c("r_1", "k_1", "P_initial_1", "impact_E_1"))
 pairs(fit_eseal, pars = c("r_1","k_1", "P_initial_1"))
+pairs(fit_eseal_temp, pars = c("r_1", "k_1", "P_initial_1", "impact_E_1"))
+
+
+# Model Evaluation
+
+# extract log-likelihood matrix: iterations x time
+log_lik_mat <- rstan::extract(fit_sealion, pars = "log_lik")$log_lik
+log_lik_mat_temp <- rstan::extract(fit_sealion_temp, pars = "log_lik")$log_lik
+log_lik_mat_habitat <- rstan::extract(fit_sealion_habitat, pars = "log_lik")$log_lik
+
+# keep only observed abundance years
+obs_idx <- which(original_sealion$abundance> -1)
+y_obs <- original_sealion$abundance[obs_idx]
+
+log_lik_obs <- log_lik_mat[, obs_idx, drop = FALSE]
+log_lik_obs_temp <- log_lik_mat_temp[, obs_idx, drop = FALSE]
+log_lik_obs_habitat <- log_lik_mat_habitat[, obs_idx, drop = FALSE]
+
+
+# compute WAIC
+loo_res <- loo::loo(log_lik_obs)
+waic_res <- loo::waic(log_lik_obs)
+print(loo_res)
+
+loo_res$estimates
+waic_res$estimates
+
+loo_res_temp <- loo::loo(log_lik_obs_temp)
+loo_res_temp$estimates
+
+waic_res_temp <- loo::waic(log_lik_obs_temp)
+waic_res_temp$estimates
+
+loo_res_habitat <- loo::loo(log_lik_obs_habitat)
+loo_res_habitat$estimates
+
+# Get Bayesian R2
+
+get_bayes_R2 <- function(fit, obs_idx, y_obs) {
+  mu_draws <- rstan::extract(fit, pars = "mu_pred")$mu_pred
+  mu_obs <- mu_draws[, obs_idx, drop = FALSE]
+  
+  bayes_R2 <- apply(mu_obs, 1, function(mu) {
+    var_fit <- var(mu)
+    var_res <- var(y_obs - mu)
+    var_fit / (var_fit + var_res)
+  })
+  
+  c(
+    mean = mean(bayes_R2),
+    median = median(bayes_R2),
+    lwr = quantile(bayes_R2, 0.025),
+    upr = quantile(bayes_R2, 0.975)
+  )
+}
+
+R2_null <- get_bayes_R2(fit_sealion, obs_idx, y_obs)
+R2_temp <- get_bayes_R2 (fit_sealion_temp, obs_idx, y_obs)
+R2_habitat <- get_bayes_R2 (fit_sealion_habitat, obs_idx, y_obs)
+
 
 # abundance
 

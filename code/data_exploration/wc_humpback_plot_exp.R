@@ -9,6 +9,7 @@ input_dir <- "data/confidential/stan_output/Humpback_whale"
 ### read in data ###
 output <- read.csv(file.path(input_dir, "summary_warmup_50000_iter_1e+05.csv"))
 fit <- readRDS(file.path(input_dir, "fit_warmup_50000_iter_1e+05.rds"))
+fit_temp <- readRDS(file.path(input_dir, "fit_warmup_50000_iter_1e+05_temp.rds"))
 # original abundance data
 original <- read.csv("data/confidential/input_data/wc_hbk_gray_input.csv") %>%
   filter(species == "Humpback_whale")
@@ -17,6 +18,7 @@ original <- read.csv("data/confidential/input_data/wc_hbk_gray_input.csv") %>%
 
 # check pair plots
 pairs(fit, pars = c("r_1", "lnmsy_1", "lnk_1", "k_1", "msy_1"))
+pairs(fit_temp, pars = c("r_1", "lnmsy_1", "lnk_1", "k_1", "msy_1", "impact_E_1"))
 
 # check traceplot
 posterior <- rstan::extract(fit, permuted = FALSE)

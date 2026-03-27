@@ -11,12 +11,12 @@ library(parallel)
 options(mc.cores = parallel::detectCores())
 
 ### Compile the stan model
-SPM_stan = stan_model(file = "model/no_est_catch_simulation_fix_p.stan")
+SPM_stan = stan_model(file = "model/fix_p_no_temp.stan")
 
 # ================================
 # Species List
 # ================================
-species_list <- c("Gray_whale")
+species_list <- c("Humpback_whale")
 
 # Root output directory
 root_output <- "data/confidential/stan_output"
@@ -39,11 +39,12 @@ run_species <- function(sp_name) {
   flush.console()
   
   # ---- 1. Load DATA ----
-  all_data <- read.csv("data/confidential/input_data/wc_hbk_gray_input.csv")
+  all_data <- read.csv("data/confidential/input_data/input_final.csv")
   input_df <- subset(all_data, species == sp_name)
   
-  min_year = min(input_df$year)
-  max_year = max(input_df$year)
+  min_year = min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
+  #max_year = max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
+  max_year = 2014
   abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
   catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$catch
   sigma_true <-input_df[input_df$year>=min_year&input_df$year<=max_year,]$sigma
@@ -71,7 +72,7 @@ run_species <- function(sp_name) {
   init_fun <- function() {
 
     # 1. Draw initial r (same logic as Zoe)
-    rinit <- runif(1, 0.06, 0.07)
+    rinit <- runif(1, 0.07, 0.08)
 
     # 2. Fixed rough guess for K (EXACTLY like Zoe)
     K_init <- 4500

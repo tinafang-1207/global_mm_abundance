@@ -1,8 +1,9 @@
 
+
 functions {
   real N_PT_temp(real N, real r, real z, real k,
                  real E, real impact_E, real Catch) {
-  return fmax(
+    return fmax(
       N + r * exp(impact_E * E) * N * (1 - pow(N / k, z)) - Catch,
       0.0001
     );
@@ -32,10 +33,8 @@ parameters {
 transformed parameters {
   vector<lower=0>[N_1] N_med;
 
-  // Initial abundance
   N_med[1] = k_1 * P_initial_1;
 
-  // State process: temperature ON for the entire prescribed year range
   for (t in 2:N_1) {
     N_med[t] = N_PT_temp(
       N_med[t-1],
@@ -52,7 +51,7 @@ model {
   r_1 ~ uniform(low_r, high_r);
   k_1 ~ uniform(low_k, high_k);
   P_initial_1 ~ beta(1, 1);
-  impact_E_1 ~ normal(0, 0.1);
+  impact_E_1 ~ uniform(-1, 1);
 
   // Likelihood
   for (t in 1:N_1) {
@@ -64,11 +63,22 @@ model {
 
 generated quantities {
   vector[N_1] Abundance_pred;
+  vector[N_1] log_lik;
+  vector[N_1] mu_pred;
 
   for (t in 1:N_1) {
-    Abundance_pred[t] = lognormal_rng(log(N_med[t]), sigma_1[t]);
+    mu_pred[t] = N_med[t];
+
+    if (Abundance_1[t] > -1) {
+      log_lik[t] = lognormal_lpdf(Abundance_1[t] | log(N_med[t]), sigma_1[t]);
+      Abundance_pred[t] = lognormal_rng(log(N_med[t]), sigma_1[t]);
+    } else {
+      log_lik[t] = 0;
+      Abundance_pred[t] = -999;
+    }
   }
 }
+
 
 
 
