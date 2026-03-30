@@ -15,7 +15,7 @@ SPM_stan = stan_model(file = "model/vary_p_temp.stan")
 # ================================
 # Species List
 # ================================
-species_list <- c("California_sea_lion")
+species_list <- c("CA_harbor_seal")
 
 # Root output directory
 root_output <- "data/confidential/stan_output"
@@ -39,13 +39,15 @@ run_species <- function(sp_name) {
   all_data <- read.csv("data/confidential/input_data/input_final.csv")
   input_df <- subset(all_data, species == sp_name)
   
-  min_year <- min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
-  max_year <- max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
+  #min_year <- min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
+  #max_year <- max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
+  min_year <- 1981
+  max_year <- 2012
   abundance <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$abundance
   catch     <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$catch
   sigma_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$sigma
-  environment_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$temp_scaled_all_year
-  z_true <- 3.93
+  environment_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$pdo_scaled_all_year
+  z_true <- 4.9
   
   # ---- 1.1 First observed abundance index (SIMPLE) ----
   #t_first_obs <- which(abundance > -1)[1]

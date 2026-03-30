@@ -69,16 +69,16 @@ generated quantities {
   for (t in 1:N_1) {
     mu_pred[t] = N_med[t];
 
+    // Always generate posterior predictive abundance
+    Abundance_pred[t] = lognormal_rng(log(N_med[t]), sigma_1[t]);
+
+    // Only compute log-likelihood where abundance was observed
     if (Abundance_1[t] > -1) {
       log_lik[t] = lognormal_lpdf(Abundance_1[t] | log(N_med[t]), sigma_1[t]);
-      Abundance_pred[t] = lognormal_rng(log(N_med[t]), sigma_1[t]);
     } else {
       log_lik[t] = 0;
-      Abundance_pred[t] = -999;
     }
   }
 }
-
-
 
 
