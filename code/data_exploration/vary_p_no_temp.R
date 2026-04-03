@@ -49,7 +49,7 @@ run_species <- function(sp_name) {
   abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
   catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$catch
   sigma_true <-input_df[input_df$year>=min_year&input_df$year<=max_year,]$sigma
-  z_true <- 1.098
+  z_true <- 10.1
   
   # ---- 2. Stan Data ----
   stan_data <- list(
