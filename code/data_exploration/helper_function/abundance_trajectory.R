@@ -112,8 +112,8 @@ plot_abundance <- function(fit, spp, output_spp, data_orig, min_model_year, max_
     geom_hline(yintercept = k_df$k_mean, linetype = "solid",color = "blue") +
     geom_ribbon(data = mnpl_df, aes(x = est_variables, ymin = mnpl_lcl, ymax = mnpl_hcl), fill = "red",alpha = 0.2) +
     geom_hline(yintercept = mnpl_df$mnpl_mean, linetype = "dashed", color = "red") +
-    geom_text(data = k_df, aes(x = min_model_year + 5, y = k_mean, label = label), color = "blue", hjust = 1, vjust = -0.5) +
-    geom_text(data = mnpl_df, aes(x = min_model_year + 6, y = mnpl_mean, label = label), color = "red", hjust = 1, vjust = -0.5) +
+    geom_text(data = k_df, aes(x = min_model_year + 5, y = k_mean, label = label), color = "blue", hjust = 1, vjust = -0.5, size = 3) +
+    geom_text(data = mnpl_df, aes(x = min_model_year + 7, y = mnpl_mean, label = label), color = "red", hjust = 1, vjust = -0.5, size = 3) +
     geom_ribbon(data = output_spp_clean, aes(x = est_variables, ymin = `X2.5.`, ymax = `X97.5.`), alpha = 0.3) +
     geom_line(data = output_spp_clean, aes(x = est_variables, y = mean)) +
     geom_point(data = original_spp_clean, aes(x = year, y = abundance), fill = "darkblue", color = "black", size = 2, shape = 21) +

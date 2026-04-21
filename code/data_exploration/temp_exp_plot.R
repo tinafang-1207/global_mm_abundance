@@ -3,17 +3,13 @@
 library(tidyverse)
 
 ### read in data ###
-output_temp_blue <- read.csv("data/confidential/stan_output/Blue_whale/summary_warmup_50000_iter_1e+05_temp_0.5.csv")
+output_temp_blue <- read.csv("data/confidential/stan_output/Blue_whale/summary_warmup_50000_iter_1e+05_temp.csv")
 output_temp_gray <- read.csv("data/confidential/stan_output/Gray_whale/summary_warmup_50000_iter_1e+05_temp.csv")
 output_temp_humpback <- read.csv("data/confidential/stan_output/Humpback_whale/summary_warmup_50000_iter_1e+05_temp.csv")
 output_temp_sealion <- read.csv("data/confidential/stan_output/California_sea_lion/summary_warmup_50000_iter_1e+05_temp.csv")
 output_temp_hseal <- read.csv("data/confidential/stan_output/CA_Harbor_seal/summary_warmup_50000_iter_1e+05_temp.csv")
 output_temp_eseal <- read.csv("data/confidential/stan_output/Northern_elephant_seal/summary_warmup_50000_iter_1e+05_temp.csv")
 
-
-output_blue <- read.csv("data/confidential/stan_output/Blue_whale/summary_warmup_50000_iter_1e+05.csv")
-output_gray <- read.csv("data/confidential/stan_output/Gray_whale/summary_warmup_50000_iter_1e+05.csv")
-output_humpback <- read.csv("data/confidential/stan_output/Humpback_whale/summary_warmup_50000_iter_1e+05.csv")
 temp <- read.csv("data/confidential/input_data/PDO_temp.csv")
 
 ### clean data

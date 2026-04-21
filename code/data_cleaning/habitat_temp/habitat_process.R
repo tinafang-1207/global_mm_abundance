@@ -96,6 +96,10 @@ ggplot() +
   ) +
   theme_bw()
 
+# ENP gray whale
+gray_orig <- 
+
+
 # California sea lion
 ca_sealion_orig <- pinniped_orig %>%
   filter(comm_name == "California sea lion")

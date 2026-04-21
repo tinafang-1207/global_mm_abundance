@@ -10,24 +10,32 @@ data {
   int<lower=1> N_1;                 // Number of time steps
   vector[N_1] Catch_1;              // Observed catch (in abundance units)
   vector[N_1] Abundance_1;          // Observed abundance; use -999 for missing
-  real<lower=0> low_r;
-  real<lower=0> high_r;
-  real<lower=0> low_k;
-  real<lower=0> high_k;
+  real<lower=0> r_approx;
+  real<lower=0> k_approx;
+  real<lower=0> N_init_approx;
   real<lower=0> z_1;                // Shape parameter
   vector<lower=0>[N_1] sigma_1;
+  //real<lower=0> low_r;
+  //real<lower=0> high_r;
+  //real<lower=0> low_k;
+  //real<lower=0> high_k;
 }
 
 parameters {
-  real<lower=low_r, upper=high_r> r_1;
-  real<lower=low_k, upper=high_k> k_1;
-  real<lower=0.001, upper=0.99> P_initial_1;
+  real<lower=0> r_1;
+  real log_k_1;
+  real log_N_init_1;
+  //real<lower=low_r, upper=high_r> r_1;
+  //real<lower=low_k, upper=high_k> k_1;
 }
 
 transformed parameters {
+  
+  real<lower=0> k_1 = exp(log_k_1);
+  real<lower=0> N_init_1 = exp(log_N_init_1);
   vector<lower=0>[N_1] N_med;       // Estimated latent abundance trajectory
 
-  N_med[1] = k_1 * P_initial_1;
+  N_med[1] = N_init_1;
 
   for (t in 2:N_1) {
     N_med[t] = N_PT(N_med[t-1], r_1, z_1, k_1, Catch_1[t-1]);
@@ -36,9 +44,13 @@ transformed parameters {
 
 model {
   // Priors
-  r_1 ~ uniform(low_r, high_r);
-  k_1 ~ uniform(low_k, high_k);
-  P_initial_1 ~ uniform(0.001, 0.99);
+  r_1 ~ lognormal(log(r_approx), 0.25);
+  log_k_1 ~ normal(log(k_approx), 0.5);
+  log_N_init_1 ~ normal(log(N_init_approx), 0.5);
+  //log_N_init_1 ~ cauchy(0, 1); 
+
+  //r_1 ~ uniform(low_r, high_r);
+  //k_1 ~ uniform(low_k, high_k);
 
   // Likelihood only for observed abundance
   for (t in 1:N_1) {

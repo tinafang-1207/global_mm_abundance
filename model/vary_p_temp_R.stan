@@ -1,0 +1,97 @@
+
+
+functions {
+  real N_PT_temp(real N, real r_mod, real z, real k, real Catch) {
+    return fmax(
+      N + r_mod * N * (1 - pow(N / k, z)) - Catch,
+      0.0001
+    );
+  }
+}
+
+data {
+  int<lower=1> N_1;
+  vector[N_1] Catch_1;
+  vector[N_1] Abundance_1;          // observed abundance, -999 = missing
+  vector[N_1] Environment_1;        // environmental covariate for all years
+  real<lower=0> r_approx;
+  real<lower=0> k_approx;
+  real<lower=0> N_init_approx;
+  real<lower=0> z_1;
+  vector<lower=0>[N_1] sigma_1;     // observation SD on log scale
+}
+
+parameters {
+  real<lower=0> r_1;                           // base intrinsic growth rate
+  real log_k_1;        // carrying capacity
+  real log_N_init_1;                     // initial abundance
+  real impact_E_1;                            // environmental effect on growth
+  vector[N_1] eps_t;                          // raw yearly process error
+  real<lower=0> sig_E;                        // SD of yearly process error (half-cauchy so lower=0)
+}
+
+transformed parameters {
+  
+  real<lower=0> k_1 = exp(log_k_1);
+  real<lower=0> N_init_1 = exp(log_N_init_1);
+  vector[N_1] eps_proc;                       // scaled + bias-corrected process error
+  vector<lower=0>[N_1] R_t;                   // yearly environment-modified growth rate
+  vector<lower=0>[N_1] N_med;                 // latent abundance trajectory
+
+  // log-scale process error with mean correction so E[exp(error)] = 1
+  eps_proc = eps_t * sig_E - 0.5 * square(sig_E);
+
+  // yearly modified growth rate
+  for (t in 1:N_1) {
+    R_t[t] = r_1 * exp(impact_E_1 * Environment_1[t] + eps_proc[t]);
+  }
+
+  // latent abundance process
+  N_med[1] = N_init_1;
+
+  for (t in 1:(N_1 - 1)) {
+    N_med[t + 1] = N_PT_temp(
+      N_med[t],
+      R_t[t],
+      z_1,
+      k_1,
+      Catch_1[t]
+    );
+  }
+}
+
+model {
+  // Priors
+  r_1 ~ lognormal(log(r_approx), 0.25);
+  log_k_1 ~ normal(log(k_approx), 0.5);
+  log_N_init_1 ~ normal(log(N_init_approx), 0.5);
+  impact_E_1 ~ normal(0, 2);
+  eps_t ~ normal(0, 1);
+  sig_E ~ cauchy(0, 0.1);   // half-Cauchy because constrained > 0
+
+  // Observation model
+  for (t in 1:N_1) {
+    if (Abundance_1[t] > -1) {
+      Abundance_1[t] ~ lognormal(log(N_med[t]), sigma_1[t]);
+    }
+  }
+}
+
+generated quantities {
+  vector[N_1] Abundance_pred;
+  vector[N_1] mu_pred;
+  vector[N_1] log_lik;
+
+  for (t in 1:N_1) {
+    mu_pred[t] = N_med[t];
+    Abundance_pred[t] = lognormal_rng(log(N_med[t]), sigma_1[t]);
+
+    if (Abundance_1[t] > -1) {
+      log_lik[t] = lognormal_lpdf(Abundance_1[t] | log(N_med[t]), sigma_1[t]);
+    } else {
+      log_lik[t] = 0;
+    }
+  }
+}
+
+

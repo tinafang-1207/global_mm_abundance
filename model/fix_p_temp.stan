@@ -77,7 +77,7 @@ model {
   // Priors (unchanged)
   r_1~ uniform(low_r, high_r);
   lnk_1~uniform(7, 9);
-  impact_E_1 ~ normal(0, 0.5);
+  impact_E_1 ~ uniform(-1, 1);
 
   // Observation model (UNCHANGED)
   for (t in 1:N_1) {

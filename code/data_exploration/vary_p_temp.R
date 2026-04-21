@@ -11,11 +11,12 @@ options(mc.cores = parallel::detectCores())
 
 ### Compile the stan model
 SPM_stan = stan_model(file = "model/vary_p_temp.stan")
+SPM_stan = stan_model(file = "model/vary_p_temp_k.stan")
 
 # ================================
 # Species List
 # ================================
-species_list <- c("CA_harbor_seal")
+species_list <- c("California_sea_lion")
 
 # Root output directory
 root_output <- "data/confidential/stan_output"
@@ -42,32 +43,36 @@ run_species <- function(sp_name) {
   #min_year <- min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
   #max_year <- max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
   min_year <- 1981
-  max_year <- 2012
+  max_year <- 2014
   abundance <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$abundance
   catch     <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$catch
   sigma_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$sigma
   environment_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$pdo_scaled_all_year
-  z_true <- 4.9
-  
-  # ---- 1.1 First observed abundance index (SIMPLE) ----
-  #t_first_obs <- which(abundance > -1)[1]
+  r_approx <- 0.12
+  k_approx <- max(abundance)
+  N_init_approx <- abundance[1]
+  z_true <- 3.93
   
   # ---- 2. Stan Data ----
   stan_data <- list(
     N_1 = max_year - min_year + 1,
     Abundance_1 = abundance,
     Catch_1 = catch,
-    low_r = 0.01,
-    high_r = 0.2,
-    low_k = 0.8*max(abundance),
-    high_k = 3*max(abundance),
+    N_init_approx = N_init_approx,
+    r_approx = r_approx,
+    k_approx = k_approx,
     sigma_1 = sigma_true,
     Environment_1 = environment_true,
     z_1 = z_true
   )
   
   # ---- 3. Warmup Settings ----
-  warmup_values <- c(50000, 100000, 150000, 300000, 500000, 1000000)
+  #warmup_values <- c(50000, 100000, 150000, 300000, 500000, 1000000)
+  #samples_per_chain <- 50000
+  #chains <- 3
+  #thin <- 10
+  
+  warmup_values <- 50000
   samples_per_chain <- 50000
   chains <- 3
   thin <- 10
@@ -142,7 +147,7 @@ run_species <- function(sp_name) {
         )
       )
       write.csv(warning_log,
-                file = file.path(output_dir, "stan_warnings_summary_temp.csv"),
+                file = file.path(output_dir, "stan_warnings_summary_temp_k_exp.csv"),
                 row.names = FALSE)
       next
     }
@@ -152,12 +157,12 @@ run_species <- function(sp_name) {
     
     write.csv(sum_output,
               file = file.path(output_dir,
-                               paste0("summary_warmup_", w, "_iter_", iter, "_temp.csv")),
+                               paste0("summary_warmup_", w, "_iter_", iter, "_temp_k_exp.csv")),
               row.names = TRUE)
     
     saveRDS(fit_SPM_stan,
             file.path(output_dir,
-                      paste0("fit_warmup_", w, "_iter_", iter, "_temp.rds")))
+                      paste0("fit_warmup_", w, "_iter_", iter, "_temp_k_exp.rds")))
     
     # ---- 8. Warning log ----
     if (length(run_warnings) == 0) run_warnings <- "No warning"
@@ -170,7 +175,7 @@ run_species <- function(sp_name) {
       )
     )
     write.csv(warning_log,
-              file = file.path(output_dir, "stan_warnings_summary_temp.csv"),
+              file = file.path(output_dir, "stan_warnings_summary_temp_k_exp.csv"),
               row.names = FALSE)
     
     # ---- 9. Compute R-hat ----

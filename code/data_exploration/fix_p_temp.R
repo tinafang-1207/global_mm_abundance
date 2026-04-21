@@ -10,14 +10,12 @@ library(rstan)
 options(mc.cores = parallel::detectCores())
 
 ### Compile the stan model
-SPM_stan = stan_model(file = "model/no_est_catch_catch_simulation_temp.stan")
-#SPM_stan = stan_model(file = "model/no_est_catch_simulation_temp_fix_p.stan")
-SPM_stan = stan_model(file = "model/new_code_with_temp_fix_p.stan")
+SPM_stan = stan_model(file = "model/fix_p_temp.stan")
 
 # ================================
 # Species List
 # ================================
-species_list <- c("Humpback_whale")
+species_list <- c("Blue_whale")
 
 # Root output directory
 root_output <- "data/confidential/stan_output"
@@ -38,17 +36,17 @@ run_species <- function(sp_name) {
   flush.console()
   
   # ---- 1. Load DATA ----
-  all_data <- read.csv("data/confidential/input_data/wc_hbk_gray_input.csv")
+  all_data <- read.csv("data/confidential/input_data/input_final.csv")
   input_df <- subset(all_data, species == sp_name)
   
   # min_year <- min(input_df$year)
   # max_year <- max(input_df$year)
-  min_year <- 1854
-  max_year <- 2014
+  min_year <- 1905
+  max_year <- 2018
   abundance <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$abundance
   catch     <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$catch
   sigma_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$sigma
-  environment_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$temp_scaled
+  environment_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$pdo_scaled_all_year
   z_true <- 2.39
   
   # ---- 1.1 First observed abundance index (SIMPLE) ----
