@@ -7,29 +7,6 @@ library(bayesplot)
 input_dir <- "data/confidential/stan_output/"
 
 ### import data ###
-# output_sealion <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05.csv"))
-# output_sealion_pdo <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05_temp.csv"))
-# output_sealion_pdo_k <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05_temp_k.csv"))
-# output_sealion_habitat <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05_temp_habitat.csv"))
-output_hseal <- read.csv(file.path(input_dir, "CA_Harbor_seal/summary_warmup_50000_iter_1e+05.csv"))
-output_eseal <- read.csv(file.path(input_dir, "Northern_elephant_seal/summary_warmup_50000_iter_1e+05.csv"))
-output_blue <- read.csv(file.path(input_dir, "Blue_whale/summary_warmup_50000_iter_1e+05.csv"))
-
-
-fit_sealion <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05.rds"))
-fit_sealion_temp <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp.rds"))
-fit_sealion_habitat <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp_habitat.rds"))
-fit_sealion_temp_k <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp_k.rds"))
-
-
-fit_hseal <- readRDS(file.path(input_dir, "CA_Harbor_seal/fit_warmup_50000_iter_1e+05.rds"))
-fit_hseal_temp <- readRDS(file.path(input_dir,"CA_Harbor_seal/fit_warmup_50000_iter_1e+05_temp.rds"))
-fit_eseal <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05.rds"))
-fit_eseal_temp <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp.rds"))
-fit_eseal_habitat <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp_habitat.rds"))
-
-# fit blue whale
-fit_blue <-readRDS(file.path(input_dir, "Blue_whale/fit_warmup_50000_iter_1e+05.rds"))
 
 # Model experimental data
 output_sealion <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05_exp.csv"))
@@ -38,6 +15,8 @@ output_sealion_temp <- read.csv(file.path(input_dir, "California_sea_lion/summar
 fit_sealion_temp <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp_exp.rds"))
 output_sealion_temp_k <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05_temp_k_exp.csv"))
 fit_sealion_temp_k <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp_k_exp.rds"))
+output_sealion_temp_k_hab <- read.csv(file.path(input_dir, "California_sea_lion/summary_warmup_50000_iter_1e+05_temp_k_hab_exp.csv"))
+fit_sealion_temp_k_hab <- readRDS(file.path(input_dir, "California_sea_lion/fit_warmup_50000_iter_1e+05_temp_k_hab_exp.rds"))
 
 output_hseal <- read.csv(file.path(input_dir, "CA_Harbor_seal/summary_warmup_50000_iter_1e+05_exp.csv"))
 fit_hseal <- readRDS(file.path(input_dir, "CA_Harbor_seal/fit_warmup_50000_iter_1e+05_exp.rds"))
@@ -52,9 +31,8 @@ output_eseal_temp <- read.csv(file.path(input_dir, "Northern_elephant_seal/summa
 fit_eseal_temp <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp_r_exp.rds"))
 output_eseal_temp_k <- read.csv(file.path(input_dir, "Northern_elephant_seal/summary_warmup_50000_iter_1e+05_temp_k_exp.csv"))
 fit_eseal_temp_k <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp_k_exp.rds"))
-
-
-
+output_eseal_temp_k_hab <- read.csv(file.path(input_dir, "Northern_elephant_seal/summary_warmup_50000_iter_1e+05_temp_k_hab_exp.csv"))
+fit_eseal_temp_k_hab <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp_k_hab_exp.rds"))
 
 
 # abundance survey data
@@ -108,20 +86,22 @@ mcmc_trace(eseal_posterior_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_
 
 model_list_sealion <- list(
   null = fit_sealion,
-  pdo = fit_sealion_temp,
-  pdo_k = fit_sealion_temp_k
-)
-
-model_list_eseal <- list(
-  null = fit_eseal,
-  pdo = fit_eseal_temp,
-  pdo_k = fit_eseal_temp_k
+  pdo_r = fit_sealion_temp,
+  pdo_k = fit_sealion_temp_k,
+  habitat_k = fit_sealion_temp_k_hab
 )
 
 model_list_hseal <- list(
   null = fit_hseal,
   pdo = fit_hseal_temp,
   pdo_k = fit_hseal_temp_k
+)
+
+model_list_eseal <- list(
+  null = fit_eseal,
+  pdo = fit_eseal_temp,
+  pdo_k = fit_eseal_temp_k,
+  habitat_k = fit_eseal_temp_k_hab
 )
 
 model_eval_table <- make_model_eval_table(
@@ -287,7 +267,7 @@ g_R <- ggplot(R_df, aes(x = year, y = mean)) +
 
 g_R
 
-K_df <- output_eseal_temp_k %>%
+K_df <- output_sealion_temp_k_hab %>%
   filter(grepl("^K_t\\[", X)) %>%   # adjust column name if needed
   mutate(
     year_index = as.numeric(gsub("K_t\\[|\\]", "", X)),
@@ -296,9 +276,9 @@ K_df <- output_eseal_temp_k %>%
 
 
 g_K <- ggplot(K_df, aes(x = year, y = mean)) +
-  geom_hline(yintercept = 187138, 
+  geom_hline(yintercept = 307350, 
              color = "gray40", linetype = "dashed", size = 1) +
-  geom_hline(yintercept = 180341, color = "red", linetype = "dashed", size = 1) +
+  geom_hline(yintercept = 369569, color = "red", linetype = "dashed", size = 1) +
   geom_ribbon(aes(ymin = X2.5., ymax = X97.5.), 
               fill = "steelblue", alpha = 0.3) +
   geom_line(color = "steelblue", size = 1) +
