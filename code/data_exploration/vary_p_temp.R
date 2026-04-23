@@ -16,7 +16,7 @@ SPM_stan = stan_model(file = "model/vary_p_temp_k.stan")
 # ================================
 # Species List
 # ================================
-species_list <- c("CA_harbor_seal")
+species_list <- c("Northern_elephant_seal")
 
 # Root output directory
 root_output <- "data/confidential/stan_output"
@@ -42,8 +42,8 @@ run_species <- function(sp_name) {
   
   #min_year <- min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
   #max_year <- max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
-  min_year <- 1984
-  max_year <- 2012
+  min_year <- 1981
+  max_year <- 2013
   abundance <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$abundance
   catch     <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$catch
   sigma_true <- input_df[input_df$year >= min_year & input_df$year <= max_year, ]$sigma
@@ -51,7 +51,7 @@ run_species <- function(sp_name) {
   r_approx <- 0.12
   k_approx <- max(abundance)
   N_init_approx <- abundance[which(abundance != -999)[1]]
-  z_true <- 6.1
+  z_true <- 1.9
   
   # ---- 2. Stan Data ----
   stan_data <- list(
