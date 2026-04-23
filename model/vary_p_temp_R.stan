@@ -65,7 +65,7 @@ model {
   r_1 ~ lognormal(log(r_approx), 0.25);
   log_k_1 ~ normal(log(k_approx), 0.5);
   log_N_init_1 ~ normal(log(N_init_approx), 0.5);
-  impact_E_1 ~ normal(0, 2);
+  impact_E_1 ~ normal(0, 0.5);
   eps_t ~ normal(0, 1);
   sig_E ~ cauchy(0, 0.1);   // half-Cauchy because constrained > 0
 

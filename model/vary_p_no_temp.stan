@@ -15,18 +15,12 @@ data {
   real<lower=0> N_init_approx;
   real<lower=0> z_1;                // Shape parameter
   vector<lower=0>[N_1] sigma_1;
-  //real<lower=0> low_r;
-  //real<lower=0> high_r;
-  //real<lower=0> low_k;
-  //real<lower=0> high_k;
 }
 
 parameters {
   real<lower=0> r_1;
   real log_k_1;
   real log_N_init_1;
-  //real<lower=low_r, upper=high_r> r_1;
-  //real<lower=low_k, upper=high_k> k_1;
 }
 
 transformed parameters {
@@ -47,10 +41,8 @@ model {
   r_1 ~ lognormal(log(r_approx), 0.25);
   log_k_1 ~ normal(log(k_approx), 0.5);
   log_N_init_1 ~ normal(log(N_init_approx), 0.5);
-  //log_N_init_1 ~ cauchy(0, 1); 
+  //log_N_init_1~cauchy(0, 1)
 
-  //r_1 ~ uniform(low_r, high_r);
-  //k_1 ~ uniform(low_k, high_k);
 
   // Likelihood only for observed abundance
   for (t in 1:N_1) {

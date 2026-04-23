@@ -15,9 +15,9 @@ data {
   vector[N_1] Catch_1;
   vector[N_1] Abundance_1;          // observed abundance, -999 = missing
   vector[N_1] Environment_1;        // environmental covariate for all years
-  real<lower=0> r_approx;
-  real<lower=0> k_approx;
-  real<lower=0> N_init_approx;
+  real<lower=0> r_approx; // mean of r in prior lognormal distribution
+  real<lower=0> k_approx; // mean of k in prior lognormal distribution
+  real<lower=0> N_init_approx; // mean of N_init in prior lognormal distribution
   real<lower=0> z_1;
   vector<lower=0>[N_1] sigma_1;     // observation SD on log scale
 }
@@ -65,7 +65,7 @@ model {
   r_1 ~ lognormal(log(r_approx), 0.25);
   log_k_1 ~ normal(log(k_approx), 0.5);
   log_N_init_1 ~ normal(log(N_init_approx), 0.5);
-  impact_E_1 ~ normal(0, 0.5);
+  impact_E_1 ~ normal(0, 2); //could assign a wider prior
   eps_t ~ normal(0, 1);
   sig_E ~ cauchy(0, 0.1);   // half-Cauchy because constrained > 0
 

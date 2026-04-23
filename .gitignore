@@ -12,3 +12,4 @@ data/
 *.csv
 *.tsv
 *.nc
+.positai
