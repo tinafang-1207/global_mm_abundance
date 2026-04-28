@@ -14,7 +14,7 @@ library(tidyverse)
 sst_df <- readRDS("data/habitat_gis/clean/sst_cobe2_us_west_coast.rds")
 sst_rast <- readRDS("data/habitat_gis/clean/sst_rast.rds")
 species_habitat <- readRDS("data/habitat_gis/clean/species_habitat_final.rds")
-input_df <- read.csv("data/confidential/input_data/input_final.csv")
+input_df <- read.csv("data/confidential/input_data/input_abundance.csv")
 
 
 # cut the raster to the distribution range

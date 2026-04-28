@@ -130,9 +130,9 @@ plot_abundance <- function(fit, spp, output_spp, data_orig, min_model_year, max_
   g2 <- ggplot(original_spp_clean, aes(x = year, y = catch)) +
     geom_col(fill = "darkblue",width = 0.8) +
     scale_x_continuous(
-      limits = c(min_model_year, max_model_year),
       breaks = seq(min_model_year, max_model_year, by = 10)
     ) +
+    coord_cartesian(xlim = c(min_model_year, max_model_year)) +
     scale_y_continuous(labels = scales::comma) +
     labs(x = "Year", y = "Human-caused mortality") +
     plot_theme

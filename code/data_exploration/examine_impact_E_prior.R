@@ -315,6 +315,7 @@ library(tidyverse)
 # Replace with your abundance vector or value
 # abundance <- your_data$abundance
 k_approx <- max(abundance, na.rm = TRUE)
+k_approx <- 17226
 
 # Try several SDs on the log scale
 sd_log_k1_vals <- c(0.1, 0.25, 0.5, 0.75, 1)
@@ -354,10 +355,10 @@ ggplot(prior_k_df, aes(x = k, y = density, color = sd_log_k1)) +
 library(tidyverse)
 
 # your approximate r
-r_approx <- 0.12   # change this to your value
+r_approx <- 0.2  # change this to your value
 
 # different sd values on log scale
-sd_vals <- c(0.1, 0.2, 0.25, 0.5, 0.75, 1)
+sd_vals <- c(0.05, 0.1, 0.2, 0.25, 0.5, 0.75, 1)
 
 # grid of r values
 r_grid <- seq(0, 0.4, length.out = 2000)  # adjust upper limit if needed

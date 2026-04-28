@@ -34,6 +34,11 @@ fit_eseal_temp_k <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_war
 output_eseal_temp_k_hab <- read.csv(file.path(input_dir, "Northern_elephant_seal/summary_warmup_50000_iter_1e+05_temp_k_hab_exp.csv"))
 fit_eseal_temp_k_hab <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp_k_hab_exp.rds"))
 
+output_southern_otter <- read.csv(file.path(input_dir, "Southern_sea_otter_average/summary_warmup_50000_iter_1e+05_exp.csv"))
+fit_southern_otter <- readRDS(file.path(input_dir, "Southern_sea_otter_average/fit_warmup_50000_iter_1e+05_exp.rds"))
+output_southern_otter_temp_k <- read.csv(file.path(input_dir, "Southern_sea_otter_average/summary_warmup_50000_iter_1e+05_temp_k_exp.csv"))
+fit_southern_otter_temp_k <- readRDS(file.path(input_dir, "Southern_sea_otter_average/fit_warmup_50000_iter_1e+05_temp_k_exp.rds"))
+
 
 # abundance survey data
 data_orig <- read.csv("data/confidential/input_data/input_final.csv")
@@ -45,18 +50,25 @@ source("code/data_exploration/helper_function/abundance_trajectory.R")
 
 ####################################################################################
 # check pair plots
+
+# California sea lion
 pairs(fit_sealion, pars = c("r_1","k_1", "N_init_1"))
 pairs(fit_sealion_temp, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 pairs(fit_sealion_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 
-
+# California harbor seal
 pairs(fit_hseal, pars = c("r_1","k_1", "N_init_1"))
 pairs(fit_hseal_temp, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 pairs(fit_hseal_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 
+# Northern elephant seal (California)
 pairs(fit_eseal, pars = c("r_1","k_1", "N_init_1"))
 pairs(fit_eseal_temp, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 pairs(fit_eseal_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
+
+# Southern sea otter
+pairs(fit_southern_otter, pars = c("r_1","k_1", "N_init_1"))
+pairs(fit_southern_otter_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 
 # check trace plots
 
@@ -77,6 +89,14 @@ eseal_posterior_temp <- rstan::extract(fit_eseal_temp, permuted = FALSE)
 mcmc_trace(eseal_posterior_temp, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 eseal_posterior_temp_k <- rstan::extract(fit_eseal_temp_k, permuted = FALSE)
 mcmc_trace(eseal_posterior_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
+
+# Southern sea otter
+southern_otter_posterior <- rstan::extract(fit_southern_otter, permuted = FALSE)
+mcmc_trace(southern_otter_posterior, pars = c("r_1","k_1", "N_init_1"))
+southern_otter_posterior_temp_k <- rstan::extract(fit_southern_otter_temp_k, permuted = FALSE)
+mcmc_trace(southern_otter_posterior_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
+
+
 
 
 
@@ -104,6 +124,14 @@ model_list_eseal <- list(
   habitat_k = fit_eseal_temp_k_hab
 )
 
+model_list_otter <- list(
+  null = fit_southern_otter,
+  pdo_k = fit_southern_otter_temp_k
+)
+  
+  
+  
+  
 model_eval_table <- make_model_eval_table(
   model_list = model_list_sealion,
   data_orig = data_orig,
@@ -130,6 +158,16 @@ model_eval_table <- make_model_eval_table(
   max_model_year = 2013,
   round_digits = 2
 )
+
+model_eval_table <- make_model_eval_table(
+  model_list = model_list_otter,
+  data_orig = data_orig,
+  species_name = "Southern_sea_otter_average",
+  min_model_year = 1992,
+  max_model_year = 2018,
+  round_digits = 2
+)
+
 
 model_eval_table
 
@@ -232,6 +270,27 @@ g_abundance_eseal_temp_k <- plot_abundance(fit = fit_eseal_temp_k,
                                            min_model_year = 1981,
                                            max_model_year = 2013,
                                            z_val = 1.9)
+
+# Southern sea otter
+g_abundance_otter <- plot_abundance(fit = fit_southern_otter,
+                                    spp = "Southern_sea_otter_average",
+                                    output_spp = output_southern_otter,
+                                    data_orig = data_orig,
+                                    min_model_year = 1992,
+                                    max_model_year = 2018,
+                                    z_val = 0.9)
+
+g_abundance_otter <- plot_abundance(fit = fit_southern_otter_temp_k,
+                                    spp = "Southern_sea_otter_average",
+                                    output_spp = output_southern_otter_temp_k,
+                                    data_orig = data_orig,
+                                    min_model_year = 1992,
+                                    max_model_year = 2018,
+                                    z_val = 0.9)
+
+
+
+
 
 
 
