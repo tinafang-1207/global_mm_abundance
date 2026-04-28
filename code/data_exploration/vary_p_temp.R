@@ -13,6 +13,7 @@ options(mc.cores = parallel::detectCores())
 SPM_stan = stan_model(file = "model/vary_p_temp_R.stan")
 SPM_stan = stan_model(file = "model/vary_p_temp_k.stan")
 SPM_stan = stan_model(file = "model/vary_p_temp_K_otter.stan")
+SPM_stan = stan_model(file = "model/vary_p_temp_R_otter.stan")
 
 # ================================
 # Species List
@@ -73,10 +74,10 @@ run_species <- function(sp_name) {
   #chains <- 3
   #thin <- 10
   
-  warmup_values <- 50000
-  samples_per_chain <- 50000
+  warmup_values <- 2000
+  samples_per_chain <- 2000
   chains <- 3
-  thin <- 10
+  thin <- 1
   
   # ---- 4. Warning log ----
   warning_log <- data.frame(
@@ -148,7 +149,7 @@ run_species <- function(sp_name) {
         )
       )
       write.csv(warning_log,
-                file = file.path(output_dir, "stan_warnings_summary_temp_k_exp.csv"),
+                file = file.path(output_dir, "stan_warnings_summary_temp_r_exp.csv"),
                 row.names = FALSE)
       next
     }
@@ -158,12 +159,12 @@ run_species <- function(sp_name) {
     
     write.csv(sum_output,
               file = file.path(output_dir,
-                               paste0("summary_warmup_", w, "_iter_", iter, "_temp_k_exp.csv")),
+                               paste0("summary_warmup_", w, "_iter_", iter, "_temp_r_exp.csv")),
               row.names = TRUE)
     
     saveRDS(fit_SPM_stan,
             file.path(output_dir,
-                      paste0("fit_warmup_", w, "_iter_", iter, "_temp_k_exp.rds")))
+                      paste0("fit_warmup_", w, "_iter_", iter, "_temp_r_exp.rds")))
     
     # ---- 8. Warning log ----
     if (length(run_warnings) == 0) run_warnings <- "No warning"
@@ -176,7 +177,7 @@ run_species <- function(sp_name) {
       )
     )
     write.csv(warning_log,
-              file = file.path(output_dir, "stan_warnings_summary_temp_k_exp.csv"),
+              file = file.path(output_dir, "stan_warnings_summary_temp_r_exp.csv"),
               row.names = FALSE)
     
     # ---- 9. Compute R-hat ----
