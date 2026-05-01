@@ -654,25 +654,34 @@ ggsave(southern_sea_otter, filename = file.path(plot_dir, "southern_sea_otter.pn
 
 #############################################################################
 
-# convert sst_df back to raster
-# convert dataframe to SpatRaster
-# unique months
-# dates <- sort(unique(sst_df$date))
-# 
-# # create raster for each month
-# rast_list <- lapply(dates, function(d) {
-#   
-#   tmp <- sst_df %>%
-#     filter(date == d) %>%
-#     select(lon, lat, sst)
-#   
-#   r <- rast(tmp, type = "xyz", crs = "EPSG:4326")
-#   names(r) <- as.character(d)
-#   
-#   r
-# })
-# 
-# # stack into one SpatRaster
-# sst_rast <- rast(rast_list)
+#convert sst_df back to raster
+#convert dataframe to SpatRaster
+#unique months
+dates <- sort(unique(sst_gray$date))
+
+# create raster for each month
+rast_list <- lapply(dates, function(d) {
+
+  tmp <- sst_gray %>%
+    filter(date == d) %>%
+    select(lon, lat, sst)
+
+  r <- rast(tmp, type = "xyz", crs = "EPSG:4326")
+  names(r) <- as.character(d)
+
+  r
+})
+
+# stack into one SpatRaster
+sst_rast_wc <- rast(rast_list)
+sst_rast_gray <- rast(rast_list)
+
+saveRDS(sst_rast_wc, "data/habitat_gis/clean/sst_rast_wc.rds")
+saveRDS(sst_rast_gray, "data/habitat_gis/clean/sst_rast_gray.rds")
+
+
+
+
+
 
 

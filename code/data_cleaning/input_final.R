@@ -35,6 +35,7 @@ habitat_scale <- read.csv("data/habitat_gis/clean/sst_total_by_species_scaled.cs
   select(species, year, temp_scaled_abd_year, temp_scaled_all_year)
 
 
+
 ############################## Clean data ##################################
 
 # clean abundance
@@ -138,18 +139,42 @@ hbk_catch_clean <- hbk_catch %>%
   mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
   select(year, catch)
 
+hbk_obs_est <- mortality_obs %>%
+  filter(species == "Humpback whale") %>%
+  group_by(year) %>%
+  summarize(catch = n())
+
+hbk_catch_final <- bind_rows(hbk_catch_clean, hbk_obs_est)
+
 # Gray whale
 gray_catch_clean <- gray_catch %>%
   select(year, catch) %>%
   complete(year = min(year):max(year)) %>%
-  mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
-  # only to the max year of abundance data
-  filter(year <= 2015)
+  mutate(catch = ifelse(is.na(catch), 0, catch))
+
+gray_obs_est <- mortality_obs %>%
+  filter(species == "Gray whale") %>%
+  group_by(year) %>%
+  summarize(catch_obs = n())
+
+gray_catch_final <- full_join(gray_catch_clean, gray_obs_est, by = "year") %>% 
+  mutate(catch_obs = ifelse(is.na(catch_obs), 0, catch_obs),
+         catch = ifelse(is.na(catch), 0, catch)) %>%
+  group_by(year) %>%
+  summarize(catch_total = catch + catch_obs) %>%
+  rename(catch = catch_total)
 
 # Blue whale
 blue_catch_clean <- blue_catch %>%
   complete(year = min(year):max(year)) %>%
   mutate(catch = ifelse(is.na(catch), 0, catch))
+
+blue_obs_est <- mortality_obs %>%
+  filter(species == "Blue whale") %>%
+  group_by(year) %>%
+  summarize(catch = n())
+
+blue_catch_final <- bind_rows(blue_catch_clean, blue_obs_est)
 
 # CA sea lion
 sealion_bycatch_est <- ca_gillnet_catch_est %>%
@@ -232,7 +257,7 @@ southern_otter_catch_clean <- southern_otter_catch %>%
 
 # create input data
 
-hbk_input_final <- full_join(hbk_catch_clean, hbk_abd_clean, by = "year") %>%
+hbk_input_final <- full_join(hbk_catch_final, hbk_abd_clean, by = "year") %>%
   complete(year = min(year):max(year)) %>%
   mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
   mutate(abundance = ifelse(is.na(abundance), -999, abundance)) %>%
@@ -243,7 +268,7 @@ hbk_input_final <- full_join(hbk_catch_clean, hbk_abd_clean, by = "year") %>%
   left_join(habitat_scale, by = c("species", "year")) %>%
   select(species, year, abundance, lcl, hcl, catch, sigma, pdo_scaled_abd_year, pdo_scaled_all_year, temp_scaled_abd_year, temp_scaled_all_year)
 
-gray_input_final <- full_join(gray_catch_clean, gray_abd_clean, by = "year") %>%
+gray_input_final <- full_join(gray_catch_final, gray_abd_clean, by = "year") %>%
   complete(year = min(year):max(year)) %>%
   mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
   mutate(abundance = ifelse(is.na(abundance), -999, abundance)) %>%
@@ -255,7 +280,7 @@ gray_input_final <- full_join(gray_catch_clean, gray_abd_clean, by = "year") %>%
   select(species, year, abundance, lcl,hcl, catch, sigma, pdo_scaled_abd_year, pdo_scaled_all_year, temp_scaled_abd_year, temp_scaled_all_year)
 
 
-blue_input_final <- full_join(blue_catch_clean, blue_abd_clean, by = "year") %>%
+blue_input_final <- full_join(blue_catch_final, blue_abd_clean, by = "year") %>%
   complete(year = min(year):max(year)) %>%
   mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
   mutate(abundance = ifelse(is.na(abundance), -999, abundance)) %>%

@@ -11,8 +11,10 @@ library(tidyterra)
 library(tidyverse)
 
 ### read in data 
-sst_df <- readRDS("data/habitat_gis/clean/sst_cobe2_us_west_coast.rds")
-sst_rast <- readRDS("data/habitat_gis/clean/sst_rast.rds")
+sst_wc <- readRDS("data/habitat_gis/clean/sst_cobe2_us_west_coast.rds")
+sst_gray <- readRDS("data/habitat_gis/clean/sst_cobe2_gray_whale_arctic.rds")
+sst_rast_wc <- readRDS("data/habitat_gis/clean/sst_rast_wc.rds")
+sst_rast_gray <- readRDS("data/habitat_gis/clean/sst_rast_gray.rds")
 species_habitat <- readRDS("data/habitat_gis/clean/species_habitat_final.rds")
 input_df <- read.csv("data/confidential/input_data/input_abundance.csv")
 
@@ -22,7 +24,7 @@ input_df <- read.csv("data/confidential/input_data/input_abundance.csv")
 # Blue whale (feeding)
 blue_vect <- vect(species_habitat %>% filter (species == "Blue whale"))
 
-sst_blue <- sst_rast %>%
+sst_blue <- sst_rast_wc %>%
   crop(blue_vect) %>%
   mask(blue_vect)
 
@@ -51,7 +53,7 @@ sst_blue_df <- as.data.frame(sst_blue, xy = TRUE, na.rm = TRUE) %>%
 # Humpback whale feeding
 humpback_vect <- vect(species_habitat %>% filter(species == "CA/OR Humpback whale"))
 
-sst_humpback <- sst_rast %>%
+sst_humpback <- sst_rast_wc %>%
   crop(humpback_vect) %>%
   mask(humpback_vect)
 
@@ -77,11 +79,42 @@ sst_humpback_df <- as.data.frame(sst_humpback, xy = TRUE, na.rm = TRUE) %>%
   summarize(annual_sst_mean = mean(annual_grid_mean)) %>%
   mutate(species = "Humpback_whale")
 
+# ENP gray whale
+gray_vect <- vect(species_habitat %>% filter(species == "ENP gray whale"))
+
+sst_gray <- sst_rast_gray %>%
+  crop(gray_vect) %>%
+  mask(gray_vect)
+
+sst_gray_df <- as.data.frame(sst_gray, xy = TRUE, na.rm = TRUE) %>%
+  pivot_longer(
+    cols = -c(x, y),
+    names_to = "date",
+    values_to = "sst"
+  ) %>%
+  mutate(date = as.Date(date)) %>%
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date)
+  ) %>%
+  # filter to feeding month
+  filter(month %in% c(6,7,8,9,10,11)) %>%
+  # derive annual grid mean
+  group_by(x, y, year) %>%
+  mutate(annual_grid_mean = mean(sst)) %>%
+  ungroup() %>%
+  # derive yearly mean
+  group_by(year) %>%
+  summarize(annual_sst_mean = mean(annual_grid_mean)) %>%
+  mutate(species = "Gray_whale")
+
+
+
 # California sea lion
 
 ca_sealion_vect <-  vect(species_habitat %>% filter(species == "California sea lion"))
 
-sst_ca_sealion <- sst_rast %>%
+sst_ca_sealion <- sst_rast_wc %>%
   crop(ca_sealion_vect) %>%
   mask(ca_sealion_vect)
 
@@ -108,7 +141,7 @@ sst_ca_sealion_df <- as.data.frame(sst_ca_sealion, xy = TRUE, na.rm = TRUE) %>%
 # Harbor seal
 ca_harbor_seal_vect <-  vect(species_habitat %>% filter(species == "CA harbor seal"))
 
-sst_ca_harbor_seal <- sst_rast %>%
+sst_ca_harbor_seal <- sst_rast_wc %>%
   crop(ca_harbor_seal_vect) %>%
   mask(ca_harbor_seal_vect)
 
@@ -136,7 +169,7 @@ sst_ca_harbor_seal_df <- as.data.frame(sst_ca_harbor_seal, xy = TRUE, na.rm = TR
 
 northern_elephant_seal_vect <-  vect(species_habitat %>% filter(species == "Northern elephant seal"))
 
-sst_northern_elephant_seal <- sst_rast %>%
+sst_northern_elephant_seal <- sst_rast_wc %>%
   crop(northern_elephant_seal_vect) %>%
   mask(northern_elephant_seal_vect)
 
@@ -164,7 +197,7 @@ sst_northern_elephant_seal_df <- as.data.frame(sst_northern_elephant_seal, xy = 
 
 or_harbor_seal_vect <-  vect(species_habitat %>% filter(species == "OR harbor seal"))
 
-sst_or_harbor_seal <- sst_rast %>%
+sst_or_harbor_seal <- sst_rast_wc %>%
   crop(or_harbor_seal_vect ) %>%
   mask(or_harbor_seal_vect )
 
@@ -188,15 +221,44 @@ sst_or_harbor_seal_df <- as.data.frame(sst_or_harbor_seal, xy = TRUE, na.rm = TR
   summarize(annual_sst_mean = mean(annual_grid_mean)) %>%
   mutate(species = "OR_harbor_seal")
 
+# Southern sea otter
+southern_sea_otter_vect <-  vect(species_habitat %>% filter(species == "Southern sea otter"))
+
+sst_southern_sea_otter <- sst_rast_wc %>%
+  crop(southern_sea_otter_vect) %>%
+  mask(southern_sea_otter_vect)
+
+sst_southern_sea_otter_df <- as.data.frame(sst_southern_sea_otter, xy = TRUE, na.rm = TRUE) %>%
+  pivot_longer(
+    cols = -c(x, y),
+    names_to = "date",
+    values_to = "sst"
+  ) %>%
+  mutate(date = as.Date(date)) %>%
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date)
+  ) %>%
+  # derive annual grid mean
+  group_by(x, y, year) %>%
+  mutate(annual_grid_mean = mean(sst)) %>%
+  ungroup() %>%
+  # derive yearly mean
+  group_by(year) %>%
+  summarize(annual_sst_mean = mean(annual_grid_mean)) %>%
+  mutate(species = "Southern_sea_otter")
+
 
 
 
 sst_total <- bind_rows(sst_blue_df, 
-                       sst_humpback_df, 
+                       sst_humpback_df,
+                       sst_gray_df,
                        sst_ca_sealion_df, 
                        sst_ca_harbor_seal_df, 
                        sst_northern_elephant_seal_df, 
-                       sst_or_harbor_seal_df)
+                       sst_or_harbor_seal_df,
+                       sst_southern_sea_otter_df)
 
 
 
@@ -315,6 +377,7 @@ temp_habitat_all_year <- ggplot(temp_orig_scaled_final, aes(x = year, y = temp_s
   ) +
   scale_x_continuous(breaks = seq(1850, 2025, by = 50)) +
   facet_wrap(.~species, scales = "free_y") +
+  labs(x = "Year", y = "COBE SST scaled by all years") +
   theme_bw()
 
 temp_habitat_abd_year <-  ggplot(temp_orig_scaled_final, aes(x = year, y = temp_scaled_abd_year)) +
@@ -327,6 +390,7 @@ temp_habitat_abd_year <-  ggplot(temp_orig_scaled_final, aes(x = year, y = temp_
   ) +
   scale_x_continuous(breaks = seq(1850, 2025, by = 50)) +
   facet_wrap(.~species, scales = "free_y") +
+  labs(x = "Year", y = "COBE SST scaled by years with abundance") +
   theme_bw()
 
 temp_habitat_all_year 
@@ -343,6 +407,7 @@ temp_pdo_all_year <- ggplot(pdo_scaled_final, aes(x = year, y = pdo_scaled_all_y
   ) +
   scale_x_continuous(breaks = seq(1854, 2024, by = 50)) +
   facet_wrap(.~species, scales = "free_y") +
+  labs(x = "Year", y = "PDO scaled by all years") +
   theme_bw()
 
 
@@ -356,6 +421,7 @@ temp_pdo_abd_year <- ggplot(pdo_scaled_final, aes(x = year, y = pdo_scaled_abd_y
   ) +
   scale_x_continuous(breaks = seq(1854, 2024, by = 50)) +
   facet_wrap(.~species, scales = "free_y") +
+  labs(x = "Year", y = "PDO scaled by years with abundance") +
   theme_bw()
 
 temp_pdo_all_year 
