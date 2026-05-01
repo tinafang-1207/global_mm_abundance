@@ -17,7 +17,7 @@ SPM_stan = stan_model(file = "model/vary_p_no_temp_otter.stan")
 # ================================
 # Species List
 # ================================
-species_list <- c("Southern_sea_otter_raw")
+species_list <- c("Southern_sea_otter")
 
 # Root output directory
 root_output <- "data/confidential/stan_output"
@@ -45,13 +45,13 @@ run_species <- function(sp_name) {
   
   #min_year <- min(input_df$year[input_df$catch >= 0], na.rm = TRUE)
   #max_year <- max(input_df$year[input_df$abundance != -999], na.rm = TRUE)
-  min_year <- 1990
+  min_year <- 1985
   max_year <- 2018
   abundance = input_df[input_df$year>=min_year&input_df$year<=max_year,]$abundance
   catch = input_df[input_df$year>=min_year&input_df$year<=max_year,]$catch
   #sigma_true <-input_df[input_df$year>=min_year&input_df$year<=max_year,]$sigma
   r_approx = 0.2
-  k_approx = 17226 # change depending on the estimated stock status
+  k_approx = 15096 # change depending on the estimated stock status
   N_init_approx <- abundance[which(abundance != -999)[1]]
   z_true <- 0.9
   
@@ -199,10 +199,5 @@ for (sp in species_list) {
   run_species(sp)
 }
 
-
-hs_posterior <- readRDS("data/confidential/stan_output/CA_harbor_seal/fit_warmup_50000_iter_1e+05_exp.rds")
-hs_posterior_trace <- rstan::extract(hs_posterior, permuted = FALSE)
-bayesplot::mcmc_trace(hs_posterior_trace, pars = c("log_k_1", "log_N_init_1", "r_1", "k_1", "N_init_1"))
-pairs(hs_posterior,  pars = c("r_1","k_1", "N_init_1"))
 
 

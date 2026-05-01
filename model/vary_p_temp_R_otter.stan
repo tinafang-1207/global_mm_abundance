@@ -62,9 +62,9 @@ transformed parameters {
 
 model {
   // Priors from base otter model
-  r_1 ~ lognormal(log(r_approx), 0.05);
-  log_k_1 ~ normal(log(k_approx), 0.1);
-  log_N_init_1 ~ normal(log(N_init_approx), 0.1);
+  r_1 ~ lognormal(log(r_approx), 0.25);
+  log_k_1 ~ normal(log(k_approx), 0.5);
+  log_N_init_1 ~ normal(log(N_init_approx), 0.5);
 
   // Temperature effect on growth
   impact_E_1 ~ normal(0, 0.5);

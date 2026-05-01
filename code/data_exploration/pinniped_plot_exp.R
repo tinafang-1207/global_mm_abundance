@@ -34,10 +34,12 @@ fit_eseal_temp_k <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_war
 output_eseal_temp_k_hab <- read.csv(file.path(input_dir, "Northern_elephant_seal/summary_warmup_50000_iter_1e+05_temp_k_hab_exp.csv"))
 fit_eseal_temp_k_hab <- readRDS(file.path(input_dir, "Northern_elephant_seal/fit_warmup_50000_iter_1e+05_temp_k_hab_exp.rds"))
 
-output_southern_otter <- read.csv(file.path(input_dir, "Southern_sea_otter_average/summary_warmup_50000_iter_1e+05_exp.csv"))
-fit_southern_otter <- readRDS(file.path(input_dir, "Southern_sea_otter_average/fit_warmup_50000_iter_1e+05_exp.rds"))
-output_southern_otter_temp_k <- read.csv(file.path(input_dir, "Southern_sea_otter_average/summary_warmup_50000_iter_1e+05_temp_k_exp.csv"))
-fit_southern_otter_temp_k <- readRDS(file.path(input_dir, "Southern_sea_otter_average/fit_warmup_50000_iter_1e+05_temp_k_exp.rds"))
+output_southern_otter <- read.csv(file.path(input_dir, "Southern_sea_otter/summary_warmup_50000_iter_1e+05_exp.csv"))
+fit_southern_otter <- readRDS(file.path(input_dir, "Southern_sea_otter/fit_warmup_50000_iter_1e+05_exp.rds"))
+output_southern_otter_temp_r <- read.csv(file.path(input_dir, "Southern_sea_otter/summary_warmup_50000_iter_1e+05_temp_r_exp.csv"))
+fit_southern_otter_temp_r <- readRDS(file.path(input_dir, "Southern_sea_otter/fit_warmup_50000_iter_1e+05_temp_r_exp.rds"))
+output_southern_otter_temp_k <- read.csv(file.path(input_dir, "Southern_sea_otter/summary_warmup_50000_iter_1e+05_temp_k_exp.csv"))
+fit_southern_otter_temp_k <- readRDS(file.path(input_dir, "Southern_sea_otter/fit_warmup_50000_iter_1e+05_temp_k_exp.rds"))
 
 
 # abundance survey data
@@ -68,6 +70,7 @@ pairs(fit_eseal_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"
 
 # Southern sea otter
 pairs(fit_southern_otter, pars = c("r_1","k_1", "N_init_1"))
+pairs(fit_southern_otter_temp_r, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 pairs(fit_southern_otter_temp_k, pars = c("r_1", "k_1", "N_init_1", "impact_E_1", "sig_E"))
 
 # check trace plots
@@ -113,19 +116,20 @@ model_list_sealion <- list(
 
 model_list_hseal <- list(
   null = fit_hseal,
-  pdo = fit_hseal_temp,
+  pdo_r = fit_hseal_temp,
   pdo_k = fit_hseal_temp_k
 )
 
 model_list_eseal <- list(
   null = fit_eseal,
-  pdo = fit_eseal_temp,
+  pdo_r = fit_eseal_temp,
   pdo_k = fit_eseal_temp_k,
   habitat_k = fit_eseal_temp_k_hab
 )
 
 model_list_otter <- list(
   null = fit_southern_otter,
+  pdo_r = fit_southern_otter_temp_r,
   pdo_k = fit_southern_otter_temp_k
 )
   
@@ -162,8 +166,8 @@ model_eval_table <- make_model_eval_table(
 model_eval_table <- make_model_eval_table(
   model_list = model_list_otter,
   data_orig = data_orig,
-  species_name = "Southern_sea_otter_average",
-  min_model_year = 1992,
+  species_name = "Southern_sea_otter",
+  min_model_year = 1985,
   max_model_year = 2018,
   round_digits = 2
 )
@@ -273,25 +277,28 @@ g_abundance_eseal_temp_k <- plot_abundance(fit = fit_eseal_temp_k,
 
 # Southern sea otter
 g_abundance_otter <- plot_abundance(fit = fit_southern_otter,
-                                    spp = "Southern_sea_otter_average",
+                                    spp = "Southern_sea_otter",
                                     output_spp = output_southern_otter,
                                     data_orig = data_orig,
-                                    min_model_year = 1992,
+                                    min_model_year = 1985,
                                     max_model_year = 2018,
                                     z_val = 0.9)
 
-g_abundance_otter <- plot_abundance(fit = fit_southern_otter_temp_k,
-                                    spp = "Southern_sea_otter_average",
+g_abundance_otter_temp_r <- plot_abundance(fit = fit_southern_otter_temp_r,
+                                           spp = "Southern_sea_otter",
+                                           output_spp = output_southern_otter_temp_r,
+                                           data_orig = data_orig,
+                                           min_model_year = 1985,
+                                           max_model_year = 2018,
+                                           z_val = 0.9)
+
+g_abundance_otter_temp_k <- plot_abundance(fit = fit_southern_otter_temp_k,
+                                    spp = "Southern_sea_otter",
                                     output_spp = output_southern_otter_temp_k,
                                     data_orig = data_orig,
-                                    min_model_year = 1992,
+                                    min_model_year = 1985,
                                     max_model_year = 2018,
                                     z_val = 0.9)
-
-
-
-
-
 
 
 ################################################################
@@ -299,18 +306,18 @@ g_abundance_otter <- plot_abundance(fit = fit_southern_otter_temp_k,
 
 
 # ---- 2. Extract R_t rows ----
-R_df <- output_eseal_temp %>%
+R_df <- output_southern_otter_temp_r %>%
   filter(grepl("^R_t\\[", X)) %>%   # adjust column name if needed
   mutate(
     year_index = as.numeric(gsub("R_t\\[|\\]", "", X)),
-    year = 1981 + year_index - 1
+    year = 1985 + year_index - 1
   )
 
 # ---- 3. Plot ----
 g_R <- ggplot(R_df, aes(x = year, y = mean)) +
-  geom_hline(yintercept = 0.082, 
+  geom_hline(yintercept = 0.14, 
              color = "gray40", linetype = "dashed", size = 1) +
-  geom_hline(yintercept = 0.087, color = "red", linetype = "dashed", size = 1) +
+  geom_hline(yintercept = 0.16, color = "red", linetype = "dashed", size = 1) +
   geom_ribbon(aes(ymin = X2.5., ymax = X97.5.), 
               fill = "steelblue", alpha = 0.3) +
   geom_line(color = "steelblue", size = 1) +
@@ -326,18 +333,18 @@ g_R <- ggplot(R_df, aes(x = year, y = mean)) +
 
 g_R
 
-K_df <- output_sealion_temp_k_hab %>%
+K_df <- output_southern_otter_temp_k %>%
   filter(grepl("^K_t\\[", X)) %>%   # adjust column name if needed
   mutate(
     year_index = as.numeric(gsub("K_t\\[|\\]", "", X)),
-    year = 1981 + year_index - 1
+    year = 1985 + year_index - 1
   )
 
 
 g_K <- ggplot(K_df, aes(x = year, y = mean)) +
-  geom_hline(yintercept = 307350, 
+  geom_hline(yintercept = 11530, 
              color = "gray40", linetype = "dashed", size = 1) +
-  geom_hline(yintercept = 369569, color = "red", linetype = "dashed", size = 1) +
+  geom_hline(yintercept = 14729, color = "red", linetype = "dashed", size = 1) +
   geom_ribbon(aes(ymin = X2.5., ymax = X97.5.), 
               fill = "steelblue", alpha = 0.3) +
   geom_line(color = "steelblue", size = 1) +
@@ -382,10 +389,19 @@ ggsave(g_abundance_eseal_temp, filename=file.path(plot_dir, "eseal_abd_est_temp_
 ggsave(g_abundance_eseal_temp_k, filename = file.path(plot_dir, "eseal_abd_est_temp_k_exp.png"),
        width=8, height=5, units = "in", dpi=600)
 
-ggsave(g_R, filename=file.path(plot_dir, "Northern_elephant_seal_vary_R_exp.png"), 
+ggsave(g_abundance_otter, filename = file.path(plot_dir, "southern_otter_abd_est_exp.png"),
+       width = 8, height = 5, units = "in", dpi = 600)
+ggsave(g_abundance_otter_temp_r, filename = file.path(plot_dir, "southern_otter_abd_est_temp_r_exp.png"),
+       width = 8, height = 5, units = "in", dpi = 600)
+ggsave(g_abundance_otter_temp_k, filename = file.path(plot_dir, "southern_otter_abd_est_temp_k_exp.png"),
+       width = 8, height = 5, units = "in", dpi = 600)
+
+ggsave(g_R, filename=file.path(plot_dir, "Southern_sea_otter_vary_R_exp.png"), 
        width=5, height=5, units="in", dpi=600)
-ggsave(g_K, filename=file.path(plot_dir, "Northern_elephant_seal_vary_K_exp.png"), 
+ggsave(g_K, filename=file.path(plot_dir, "Southern_sea_otter_vary_K_exp.png"), 
        width=5, height=5, units="in", dpi=600)
+
+
 
 
 

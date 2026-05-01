@@ -23,10 +23,17 @@ origin_date <- sub("days since ", "", time_units)
 dates <- as.Date(time, origin = origin_date)
 
 # U.S. West Coast in 0-360 longitude
-lon_min <- 230
-lon_max <- 250
-lat_min <- 20
-lat_max <- 55
+# lon_min <- 230
+# lon_max <- 250
+# lat_min <- 20
+# lat_max <- 55
+
+# Gray whale
+lon_min <- 180
+lon_max <- 205
+lat_min <- 60
+lat_max <- 72
+
 
 lon_idx <- which(lon >= lon_min & lon <= lon_max)
 lat_idx <- which(lat >= lat_min & lat <= lat_max)
@@ -85,7 +92,8 @@ sst_df <- data.frame(
 ) %>%
   arrange(date, lat, lon)
 
-saveRDS(sst_df, "data/habitat_gis/sst_cobe2_us_west_coast.rds")
+saveRDS(sst_df, "data/habitat_gis/clean/sst_cobe2_us_west_coast.rds")
+saveRDS(sst_df, "data/habitat_gis/clean/sst_cobe2_gray_whale_arctic.rds")
 
 
 

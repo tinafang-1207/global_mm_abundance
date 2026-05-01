@@ -112,15 +112,12 @@ or_seal_abd_clean <- or_seal_abd_orig %>%
   select(species, year, abundance, lcl, hcl, sigma)
 
 # Southern sea otter
-southern_otter_avg_abd_clean <- southern_otter_abd_orig %>%
-  select(species, year, range_wide_index) %>%
-  rename(abundance = range_wide_index) %>%
+southern_otter_abd_clean <- southern_otter_abd_orig %>%
+  # select only mainland raw count
+  select(species, year, raw_mainland_total) %>%
+  rename(abundance = raw_mainland_total) %>%
   mutate(sigma = 1)
 
-southern_otter_raw_abd_clean <- southern_otter_abd_orig %>%
-  select(species, year, range_wide_raw) %>%
-  rename(abundance = range_wide_raw) %>%
-  mutate(sigma = 1)
 
 input_abd_all <- bind_rows(gray_abd_clean,
                            blue_abd_clean,
@@ -316,7 +313,7 @@ or_seal_input_final <- full_join(or_seal_catch_clean, or_seal_abd_clean, by = "y
   left_join(habitat_scale, by = c("species", "year")) %>%
   select(species, year, abundance, lcl, hcl, catch, sigma, pdo_scaled_abd_year, pdo_scaled_all_year, temp_scaled_abd_year, temp_scaled_all_year)
 
-southern_sea_otter_avg_final <- full_join(southern_otter_catch_clean, southern_otter_avg_abd_clean, by = "year") %>%
+southern_sea_otter_final <- full_join(southern_otter_catch_clean, southern_otter_abd_clean, by = "year") %>%
   complete(year = min(year):max(year)) %>%
   mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
   mutate(abundance = ifelse(is.na(abundance), -999, abundance)) %>%
@@ -324,19 +321,7 @@ southern_sea_otter_avg_final <- full_join(southern_otter_catch_clean, southern_o
   left_join(pdo_scale, by = c("species", "year")) %>%
   left_join(habitat_scale, by = c("species", "year")) %>%
   select(species, year, abundance, catch, sigma, pdo_scaled_abd_year, pdo_scaled_all_year, temp_scaled_abd_year, temp_scaled_all_year) %>%
-  mutate(species = "Southern_sea_otter_average")
-
-southern_sea_otter_raw_final <-  full_join(southern_otter_catch_clean, southern_otter_raw_abd_clean, by = "year") %>%
-  complete(year = min(year):max(year)) %>%
-  mutate(catch = ifelse(is.na(catch), 0, catch)) %>%
-  mutate(abundance = ifelse(is.na(abundance), -999, abundance)) %>%
-  # join the temp data
-  left_join(pdo_scale, by = c("species", "year")) %>%
-  left_join(habitat_scale, by = c("species", "year")) %>%
-  select(species, year, abundance, catch, sigma, pdo_scaled_abd_year, pdo_scaled_all_year, temp_scaled_abd_year, temp_scaled_all_year) %>%
-  mutate(species = "Southern_sea_otter_raw")
-
-
+  mutate(species = "Southern_sea_otter")
 
 
 input_final <- bind_rows(hbk_input_final, 
@@ -346,8 +331,7 @@ input_final <- bind_rows(hbk_input_final,
                          ca_seal_input_final,
                          elephant_seal_input_final,
                          or_seal_input_final,
-                         southern_sea_otter_avg_final,
-                         southern_sea_otter_raw_final)
+                         southern_sea_otter_final)
 
 
   
